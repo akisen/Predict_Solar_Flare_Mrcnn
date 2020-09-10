@@ -12,18 +12,20 @@ import cv2
 import utils
 
 FULL_DISK_COORD = 4096
-
+START = "2010-05-01"
+END = "2010-12-31"
 def main():
+    coord_series = initialize_series()
     mask_paths_string = "/Users/komatsu/Documents/Predict_Solar_Flare_Mrcnn/samples/sun/Mharp/hmi.Mharp_720s.1.20100501_*_TAI.bitmap.fits"
     mask_paths = sorted(glob.glob(mask_paths_string))
     for mask_path in mask_paths:
         mask_map = sunpy.map.Map(mask_path)
         padded_mask_map = padding_mask(mask_map)
-        print(padded_mask_map.max())
         rotated_padded_mask_map = rotate_map(mask_map,padded_mask_map)
         # compare_map(padded_mask_map,rotated_padded_mask_map)
         ar_polygon = polygonize_map(mask_map,rotated_padded_mask_map)
         # show_polygon(ar_polygon)
+        
         #TODO:Data FlameをCSVから読んで追記していく仕様
         
 
@@ -60,7 +62,11 @@ def polygonize_map(mask_map,rotated_padded_mask_map):
         y = coord[1]+lower
         ar_polygon_fixed.append((x,y))
     return ar_polygon_fixed
-
+def initialize_series ():
+    time_index = pd.date_range(start = START,end = END,freq ="H")
+    time_series = pd.Series([[[]] for i in range(len(time_index))],index = time_index)
+    print(time_series)
+    return time_series
 
 
 
