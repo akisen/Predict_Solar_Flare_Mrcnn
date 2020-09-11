@@ -19,21 +19,34 @@ END = "2010-12-31"
 args = sys.argv
 def main():
     coord_series = initialize_series()
-    print(args[1])
-    mask_paths_string = "/media/akito/Data/Mharp/bitmap/201005/hmi.Mharp_720s.1.20100501_*_TAI.bitmap.fits"
-    print(mask_paths_string)
+    # print(args[1])
+  
+    mask_paths_string = args[1]
+    # print(mask_paths_string)
     mask_paths = sorted(glob.glob(mask_paths_string))
-    print(mask_paths)
+    # print(mask_paths)
     for mask_path in mask_paths:
+        print(mask_path)
         # print(mask_path)
         mask_map = sunpy.map.Map(mask_path)
         padded_mask_map = padding_mask(mask_map)
-        rotated_padded_mask_map = rotate_map(mask_map,padded_mask_map)
-        # compare_map(padded_mask_map,rotated_padded_mask_map)
-        ar_polygon = polygonize_map(mask_map,rotated_padded_mask_map)
+        rotated_padded_mask_map = rotate_map(mask_map, padded_mask_map)
+        # utils.compare_map(padded_mask_map,rotated_padded_mask_map)
+        # exit()
+        ar_polygon = polygonize_map(mask_map, rotated_padded_mask_map)
         rec_datetime = dt.strptime(mask_map.meta["t_rec"][:-4],"%Y.%m.%d_%H:%M:%S")
-        coord_series[rec_datetime].append(ar_polygon)
-        # print(coord_series)
+        print("now:",len(ar_polygon))
+        # 一つのSHARPデータの中に複数のPolygonが入っていた場合を考慮
+        if (len(ar_polygon)==1):
+            # print(ar_polygon[0])
+            coord_series[rec_datetime].append(ar_polygon)
+        elif(len(ar_polygon)==0):
+            pass
+        else:
+            for polygon in ar_polygon:
+                # print(polygon[0])
+                coord_series[rec_datetime].append(polygon[0])
+        print("sum:",len(coord_series[rec_datetime]))
         # utils.show_polygon(ar_polygon)
         utils.pickle_dump(coord_series,"/home/akito/Documents/Documents/Predict_Solar_Flare_Mrcnn/src_dataset/Coord_series.pickle")
     
@@ -64,16 +77,19 @@ def polygonize_map(mask_map,rotated_padded_mask_map):
     lower = int(mask_ll[1])
     upper = int(mask_ur[1])
     rotated_ar_mask_map = rotated_padded_mask_map[lower:upper,left:right]
-    ar_polygon,value = shapes(rotated_ar_mask_map.astype("int16"),mask=None,connectivity = 8)
-    ar_polygon_fixed = []
-    for coord in ar_polygon[0]["coordinates"][0]:
-        x = coord[0]+left
-        y = coord[1]+lower
-        ar_polygon_fixed.append((x,y))
-    return ar_polygon_fixed
+    ar_polygons =[]
+    ar_polygon_gen = shapes(rotated_ar_mask_map.astype("int16"),mask=None,connectivity = 8)
+    for i,polygon in enumerate(ar_polygon_gen):
+        # print(i,"\n")
+        # print(polygon[0]["coordinates"][0])
+        points = [(point[0]+left,point[1]+right)for point in polygon[0]["coordinates"][0]]
+        ar_polygons.append(points)
+    # print(len(ar_polygons))
+    return ar_polygons[:-1]
 def initialize_series ():
     time_index = pd.date_range(start = START,end = END,freq ="H")
     time_series = pd.Series([[] for i in range(len(time_index))],index = time_index)
+
     return time_series
 
 
