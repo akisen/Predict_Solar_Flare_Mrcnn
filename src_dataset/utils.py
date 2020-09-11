@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import matplotlib.patches as pat
+import pickle
 def show_map(map):
     plt.figure(1)
     ax = plt.subplot(1,1,1)
@@ -21,3 +22,10 @@ def show_polygon(polygon):
     p = pat.Polygon(polygon)
     ax.add_patch(p)
     plt.show()
+def pickle_dump(obj, path):
+    with open(path, mode='wb') as f:
+        pickle.dump(obj,f)
+def pickle_load(path):
+    with open(path, mode='rb') as f:
+        data = pickle.load(f)
+        return data
