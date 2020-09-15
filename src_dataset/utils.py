@@ -22,6 +22,15 @@ def show_polygon(polygon):
     p = pat.Polygon(polygon)
     ax.add_patch(p)
     plt.show()
+def show_polygons(polygons):
+    plt.figure(1)
+    ax = plt.subplot(1,1,1)
+    plt.xlim(0,4000)
+    plt.ylim(0,4000)
+    # for polygon in polygons:
+    #     p = pat.Polygon(polygon[0])
+    #     ax.add_patch(p)
+    plt.show()
 def pickle_dump(obj, path):
     with open(path, mode='wb') as f:
         pickle.dump(obj,f)

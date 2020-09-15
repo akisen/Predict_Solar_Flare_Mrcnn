@@ -15,7 +15,7 @@ import utils
 
 FULL_DISK_COORD = 4096
 START = "2010-05-01"
-END = "2010-12-31"
+END = "2010-05-31"
 args = sys.argv
 def main():
     coord_series = initialize_series()
@@ -47,7 +47,7 @@ def main():
                 # print(polygon[0])
                 coord_series[rec_datetime].append(polygon[0])
         print("sum:",len(coord_series[rec_datetime]))
-        # utils.show_polygon(ar_polygon)
+        utils.show_polygons(ar_polygon)
         utils.pickle_dump(coord_series,"/home/akito/Documents/Documents/Predict_Solar_Flare_Mrcnn/src_dataset/Coord_series.pickle")
     
 
