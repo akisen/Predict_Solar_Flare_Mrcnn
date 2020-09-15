@@ -39,15 +39,15 @@ def main():
         # 一つのSHARPデータの中に複数のPolygonが入っていた場合を考慮
         if (len(ar_polygon)==1):
             # print(ar_polygon[0])
-            coord_series[rec_datetime].append(ar_polygon)
+            coord_series[rec_datetime].append(ar_polygon[0])
         elif(len(ar_polygon)==0):
             pass
         else:
             for polygon in ar_polygon:
-                # print(polygon[0])
+                print(mask_path,polygon[0])
                 coord_series[rec_datetime].append(polygon[0])
         print("sum:",len(coord_series[rec_datetime]))
-        utils.show_polygons(ar_polygon)
+        # utils.show_polygons(ar_polygon)
         utils.pickle_dump(coord_series,"/home/akito/Documents/Documents/Predict_Solar_Flare_Mrcnn/src_dataset/Coord_series.pickle")
     
 
