@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import matplotlib.patches as pat
 import pickle
+from datetime import datetime as dt
 def show_map(map):
     plt.figure(1)
     ax = plt.subplot(1,1,1)
@@ -32,8 +33,11 @@ def show_polygons_map(polygons,map,save_path,save=True):
         p = pat.Polygon(polygon)
         ax.add_patch(p)
     fig.savefig(save_path)
+    plt.clf()
     # plt.show()
-
+def str_to_datetime(str):
+     time = dt.strptime(str[:-4],"%Y.%m.%d_%H:%M:%S")
+     return time
 def pickle_dump(obj, path):
     with open(path, mode='wb') as f:
         pickle.dump(obj,f)

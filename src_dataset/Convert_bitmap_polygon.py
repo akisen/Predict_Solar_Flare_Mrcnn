@@ -68,7 +68,8 @@ def padding_mask(mask_map):
     mask_ll = mask_center-(mask_map.meta["naxis1"]//2,mask_map.meta["naxis2"]//2)
     mask_ur = mask_center+(mask_map.meta["naxis1"]//2,mask_map.meta["naxis2"]//2)
     pad_width = np.array([[FULL_DISK_COORD-mask_ur[1],mask_ll[1]],[mask_ll[0],FULL_DISK_COORD-mask_ur[0]]])
-    padded_mask_map = np.pad(binarized_mask_map,np.array(pad_width,dtype="int"),"constant")
+    flip_mask_map = np.flipud(binarized_mask_map)
+    padded_mask_map = np.pad(flip_mask_map,np.array(pad_width,dtype="int"),"constant")
     return padded_mask_map
 def rotate_map(mask_map,padded_mask_map):
     height = FULL_DISK_COORD
@@ -106,7 +107,5 @@ def initialize_series ():
     time_series = pd.Series([[] for i in range(len(time_index))],index = time_index)
 
     return time_series
-
-
 
 main()
