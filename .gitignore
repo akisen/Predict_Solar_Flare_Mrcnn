@@ -4,3 +4,4 @@ assets/*
 logs/*
 *.csv
 samples/sun/*
+*.pyc
