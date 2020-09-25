@@ -18,6 +18,7 @@ import sys
 import argparse
 import utils
 import pickle
+from tqdm import tqdm
 FULL_DISK_COORD = 4096
 START = "2010-05-01"
 END = "2020-01-01"
@@ -38,8 +39,8 @@ def main():
     else:
         coord_series = initialize_series()
     print(coord_series)
-    for mask_path in mask_paths:
-        print(mask_path)
+    for mask_path in tqdm(mask_paths):
+        # print(mask_path)
         mask_map = sunpy.map.Map(mask_path)
         padded_mask_map = padding_mask(mask_map)
         rotated_padded_mask_map = rotate_map(mask_map, padded_mask_map)
@@ -49,7 +50,7 @@ def main():
         # print("ar_polygon:",ar_polygon)
         # utils.show_polygon(ar_polygon[0])
         rec_datetime = dt.strptime(mask_map.meta["t_rec"][:-4],"%Y.%m.%d_%H:%M:%S")
-        print("now:",len(ar_polygon))
+        # print("now:",len(ar_polygon))
         # 一つのSHARPデータの中に複数のPolygonが入っていた場合を考慮
         if (len(ar_polygon)==1):
             if(len(ar_polygon[0])!=2):
@@ -68,9 +69,9 @@ def main():
                 else:
                         # print("len2_F",mask_path,len(polygon))
                         coord_series[rec_datetime].append(polygon)
-        print("sum:",len(coord_series[rec_datetime]))
+        # print("sum:",len(coord_series[rec_datetime]))
         # utils.show_polygons(ar_polygon)
-        print(coord_series[rec_datetime])
+        # print(coord_series[rec_datetime])
         if args.pickle_path:
             coord_series.to_pickle(pickle_path)
         else:

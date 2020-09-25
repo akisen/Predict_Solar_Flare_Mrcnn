@@ -5,3 +5,4 @@ logs/*
 *.csv
 samples/sun/*
 *.pyc
+*.pickle
