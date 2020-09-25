@@ -4,8 +4,16 @@
     "version": "0.1",
     "year": 2020,
     "contributor": "Akito Komatsu",
-    "data_created": "2020/09/01"
+    "data_created": "2020/10/01"
   },
-  "images": "",
+  "images": [
+    {
+      "id": "20100501_000000",
+      "file_name": "20100501_000000.png",
+      "width": 4096,
+      "height": 4096,
+      "date_captured": "2010.05.01_00:00:00"
+    }
+  ],
   "annotations": ""
 }
