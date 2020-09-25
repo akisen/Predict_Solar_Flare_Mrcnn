@@ -70,6 +70,7 @@ def main():
                         coord_series[rec_datetime].append(polygon)
         print("sum:",len(coord_series[rec_datetime]))
         # utils.show_polygons(ar_polygon)
+        print(coord_series[rec_datetime])
         if args.pickle_path:
             coord_series.to_pickle(pickle_path)
         else:
@@ -85,6 +86,7 @@ def padding_mask(mask_map):
     full_disk_coord = 4096
     pad_width = np.array([[full_disk_coord-mask_ur[1],mask_ll[1]],[mask_ll[0],full_disk_coord-mask_ur[0]]])
     padded_mask_map = np.pad(np.flipud(binarized_mask_map),np.array(pad_width,dtype="int"),"constant")
+    # print(mask_center,mask_ll,mask_ur)
     return padded_mask_map
 def rotate_map(mask_map,padded_mask_map):
     height = FULL_DISK_COORD
@@ -94,6 +96,7 @@ def rotate_map(mask_map,padded_mask_map):
     scale = 1.0
     trans = cv2.getRotationMatrix2D(center,angle,scale)
     rotated_padded_mask_map = cv2.warpAffine(padded_mask_map.astype("int16"),trans,(width,height))
+    rotated_padded_mask_map = np.flipud(rotated_padded_mask_map)
     return rotated_padded_mask_map
 def polygonize_map(mask_map,rotated_padded_mask_map):
     mask_center = np.array([mask_map.reference_pixel[0].value,mask_map.reference_pixel[1].value])
@@ -102,9 +105,10 @@ def polygonize_map(mask_map,rotated_padded_mask_map):
     # print("coord:",mask_center,mask_ll,mask_ur)
     left = int(FULL_DISK_COORD-mask_ur[0])
     right = int(FULL_DISK_COORD-mask_ll[0])
-    lower = int(mask_ll[1])
-    upper = int(mask_ur[1])
+    lower = int(FULL_DISK_COORD-mask_ur[1])
+    upper = int(FULL_DISK_COORD-mask_ll[1])
     # print("rotated_coord:",left,right,lower,upper)
+    # exit()
     rotated_ar_mask_map = rotated_padded_mask_map[lower:upper,left:right]
     ar_polygons =[]
     ar_polygon_gen = shapes(rotated_ar_mask_map.astype("int16"),mask=None,connectivity = 8)
