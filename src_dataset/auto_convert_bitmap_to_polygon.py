@@ -13,6 +13,6 @@ for year in years:
             print(command)
             subprocess.run(command, shell=True)
         else:
-            command = 'python3 Convert_bitmap_polygon.py "/media/akito/Data21/hmi.Mharp_720s/{0}/{0}{1}/*.bitmap.fits" --pickle_path ="/home/akito/Documents/Documents/Predict_Solar_Flare_Mrcnn/Coord_series.pickle"'.format(year, str(month).zfill(2))
+            command = 'python3 Convert_bitmap_polygon.py "/media/akito/Data21/hmi.Mharp_720s/{0}/{0}{1}/*.bitmap.fits" --pickle_path "/home/akito/Documents/Documents/Predict_Solar_Flare_Mrcnn/Coord_series.pickle"'.format(year, str(month).zfill(2))
             print(command)
             subprocess.run(command, shell=True)
