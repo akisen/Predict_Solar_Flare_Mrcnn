@@ -1,3 +1,8 @@
+"""
+bitmap形式のファイルを入力し、各時間ごとのPolygonのPickleファイルを出力するプログラム
+実行例:/opt/anaconda3/envs/py3.7/bin/python /Users/komatsu/Documents/Predict_Solar_Flare_Mrcnn/src_dataset/Convert_bitmap_polygon.py "/Users/komatsu/Documents/Predict_Solar_Flare_Mrcnn/samples/sun/Mharp/hmi.Mharp_720s.1.20100501_0*_TAI.bitmap.fits" --pickle_path "/Users/komatsu/Documents/Predict_Solar_Flare_Mrcnn/src_dataset/Coord_series.pickle"
+"""
+
 import sunpy.map
 import astropy.units as u
 import glob
@@ -10,24 +15,31 @@ from rasterio.features import shapes
 import cv2
 from datetime import datetime as dt
 import sys
-
+import argparse
 import utils
-
+import pickle
 FULL_DISK_COORD = 4096
 START = "2010-05-01"
-END = "2010-05-31"
-args = sys.argv
+END = "2020-01-01"
+
+parser = argparse.ArgumentParser()
+parser.add_argument("input_path")
+parser.add_argument("--pickle_path")
+args = parser.parse_args()
 def main():
-    coord_series = initialize_series()
-    # print(args[1])
-  
-    mask_paths_string = args[1]
+    mask_paths_string = args.input_path
+    pickle_path = args.pickle_path
     # print(mask_paths_string)
     mask_paths = sorted(glob.glob(mask_paths_string))
-    # print(mask_paths)
+    # print(mask_paths[0])
+    # print(mask_paths[-1])
+    if args.pickle_path:
+        coord_series=pd.read_pickle(pickle_path)
+    else:
+        coord_series = initialize_series()
+    print(coord_series)
     for mask_path in mask_paths:
         print(mask_path)
-        # print(mask_path)
         mask_map = sunpy.map.Map(mask_path)
         padded_mask_map = padding_mask(mask_map)
         rotated_padded_mask_map = rotate_map(mask_map, padded_mask_map)
@@ -58,7 +70,10 @@ def main():
                         coord_series[rec_datetime].append(polygon)
         print("sum:",len(coord_series[rec_datetime]))
         # utils.show_polygons(ar_polygon)
-        utils.pickle_dump(coord_series,"/home/akito/Documents/Documents/Predict_Solar_Flare_Mrcnn/src_dataset/Coord_series.pickle")
+        if args.pickle_path:
+            coord_series.to_pickle(pickle_path)
+        else:
+            coord_series.to_pickle("../Coord_series.pickle")
 
     
 
@@ -67,9 +82,9 @@ def padding_mask(mask_map):
     mask_center = np.array([mask_map.reference_pixel[0].value,mask_map.reference_pixel[1].value])
     mask_ll = mask_center-(mask_map.meta["naxis1"]//2,mask_map.meta["naxis2"]//2)
     mask_ur = mask_center+(mask_map.meta["naxis1"]//2,mask_map.meta["naxis2"]//2)
-    pad_width = np.array([[FULL_DISK_COORD-mask_ur[1],mask_ll[1]],[mask_ll[0],FULL_DISK_COORD-mask_ur[0]]])
-    flip_mask_map = np.flipud(binarized_mask_map)
-    padded_mask_map = np.pad(flip_mask_map,np.array(pad_width,dtype="int"),"constant")
+    full_disk_coord = 4096
+    pad_width = np.array([[full_disk_coord-mask_ur[1],mask_ll[1]],[mask_ll[0],full_disk_coord-mask_ur[0]]])
+    padded_mask_map = np.pad(np.flipud(binarized_mask_map),np.array(pad_width,dtype="int"),"constant")
     return padded_mask_map
 def rotate_map(mask_map,padded_mask_map):
     height = FULL_DISK_COORD
@@ -105,7 +120,13 @@ def polygonize_map(mask_map,rotated_padded_mask_map):
 def initialize_series ():
     time_index = pd.date_range(start = START,end = END,freq ="H")
     time_series = pd.Series([[] for i in range(len(time_index))],index = time_index)
-
     return time_series
+def pickle_dump(obj, path):
+    with open(path, mode='wb') as f:
+        pickle.dump(obj,f)
+def pickle_load(path):
+    with open(path, mode='rb') as f:
+        data = pickle.load(f)
+        return data
 
 main()

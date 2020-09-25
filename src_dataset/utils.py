@@ -38,10 +38,3 @@ def show_polygons_map(polygons,map,save_path,save=True):
 def str_to_datetime(str):
      time = dt.strptime(str[:-4],"%Y.%m.%d_%H:%M:%S")
      return time
-def pickle_dump(obj, path):
-    with open(path, mode='wb') as f:
-        pickle.dump(obj,f)
-def pickle_load(path):
-    with open(path, mode='rb') as f:
-        data = pickle.load(f)
-        return data
