@@ -1,6 +1,6 @@
 """
 bitmap形式のファイルを入力し、各時間ごとのPolygonのPickleファイルを出力するプログラム
-実行例:/opt/anaconda3/envs/py3.7/bin/python /Users/komatsu/Documents/Predict_Solar_Flare_Mrcnn/src_dataset/Convert_bitmap_polygon.py "/Users/komatsu/Documents/Predict_Solar_Flare_Mrcnn/samples/sun/Mharp/hmi.Mharp_720s.1.20100501_0*_TAI.bitmap.fits" --pickle_path "/Users/komatsu/Documents/Predict_Solar_Flare_Mrcnn/src_dataset/Coord_series.pickle"
+実行例:/opt/anaconda3/envs/py3.7/bin/python /Users/komatsu/Documents/Predict_Solar_Flare_Mrcnn/src_dataset/Convert_bitmap_polygon.py "/Users/komatsu/Documents/Predict_Solar_Flare_Mrcnn/samples/sun/Mharp/hmi.Mharp_720s.1.20100501_0*_TAI.bitmap.fits" --pickle_path "/Users/komatsu/Documents/Predict_Solar_Flare_Mrcnn/src_dataset/coord_df.pickle"
 """
 
 import sunpy.map
@@ -24,58 +24,75 @@ START = "2010-05-01"
 END = "2020-01-01"
 
 parser = argparse.ArgumentParser()
-parser.add_argument("input_path")
+parser.add_argument("input_mask_path")
+parser.add_argument("input_flare_table_path")
 parser.add_argument("--pickle_path")
 args = parser.parse_args()
 def main():
-    mask_paths_string = args.input_path
+    mask_paths_string = args.input_mask_path
     pickle_path = args.pickle_path
     # print(mask_paths_string)
     mask_paths = sorted(glob.glob(mask_paths_string))
-    # print(mask_paths[0])
-    # print(mask_paths[-1])
+    flare_df_paths_string = args.input_flare_table_path
+    flare_df_paths = sorted(glob.glob(flare_df_paths_string))
+    flare_df_paths_dic = {path.split("/")[-1][:-4]:path for path in flare_df_paths}
     if args.pickle_path:
-        coord_series=pd.read_pickle(pickle_path)
+        coord_df=pd.read_pickle(pickle_path)
     else:
-        coord_series = initialize_series()
-    print(coord_series)
+        coord_df = initialize_df()
     for mask_path in tqdm(mask_paths):
-        # print(mask_path)
+        mask_map = sunpy.map.Map(mask_path)
+        ar_num=mask_path.split(".")[3]
+        flare_df = pd.read_table(flare_df_paths_dic[str(ar_num)])
+        flare_df["Timestamp"] = pd.to_datetime(flare_df["Timestamp"])
+        # print(flare_df)
+        flare_df.set_index("Timestamp",inplace = True)
+        # print(flare_df)
+        rec_datetime = dt.strptime(mask_map.meta["t_rec"][:-4],"%Y.%m.%d_%H:%M:%S")
+        # print(flare_df.loc[rec_datetime])# 時間以上の精度で参照するときは.loc関数を使用する
         mask_map = sunpy.map.Map(mask_path)
         padded_mask_map = padding_mask(mask_map)
+        # print(padded_mask_map.shape)
+        if (padded_mask_map.shape == (0,0)):
+            print("error : continue")
+            print(mask_path)
+            continue
         rotated_padded_mask_map = rotate_map(mask_map, padded_mask_map)
         # utils.compare_map(padded_mask_map,rotated_padded_mask_map)
         # exit()
         ar_polygon = polygonize_map(mask_map, rotated_padded_mask_map)
         # print("ar_polygon:",ar_polygon)
         # utils.show_polygon(ar_polygon[0])
-        rec_datetime = dt.strptime(mask_map.meta["t_rec"][:-4],"%Y.%m.%d_%H:%M:%S")
         # print("now:",len(ar_polygon))
         # 一つのSHARPデータの中に複数のPolygonが入っていた場合を考慮
         if (len(ar_polygon)==1):
             if(len(ar_polygon[0])!=2):
                 # print("len1_T",mask_path,len(ar_polygon[0]))
-                coord_series[rec_datetime].append(ar_polygon[0])
+                coord_df.loc[rec_datetime]["Polygon"].append(ar_polygon[0])
+                add_flare_label(coord_df,flare_df,rec_datetime)
             else:
                 # print("len1_F",mask_path,len(ar_polygon))
-                coord_series[rec_datetime].append(ar_polygon)
+                coord_df.loc[rec_datetime]["Polygon"].append(ar_polygon)
+                add_flare_label(coord_df,flare_df,rec_datetime)
         elif(len(ar_polygon)==0):
             pass
         else:
             for polygon in ar_polygon:
                 if(len(polygon[0])!=2):
                         # print("len2_T",mask_path,len(polygon[0]))
-                        coord_series[rec_datetime].append(polygon[0])
+                        coord_df.loc[rec_datetime]["Polygon"].append(polygon[0])
+                        add_flare_label(coord_df,flare_df,rec_datetime)
                 else:
                         # print("len2_F",mask_path,len(polygon))
-                        coord_series[rec_datetime].append(polygon)
-        # print("sum:",len(coord_series[rec_datetime]))
+                        coord_df.loc[rec_datetime]["Polygon"].append(polygon)
+                        add_flare_label(coord_df,flare_df,rec_datetime)
+        # print("sum:",len(coord_df.loc[rec_datetime]["Polygon"]))
         # utils.show_polygons(ar_polygon)
-        # print(coord_series[rec_datetime])
+        # print(coord_df[rec_datetime])
         if args.pickle_path:
-            coord_series.to_pickle(pickle_path)
+            coord_df.to_pickle(pickle_path)
         else:
-            coord_series.to_pickle("../Coord_series.pickle")
+            coord_df.to_pickle("../coord_df.pickle")
 
     
 
@@ -86,8 +103,13 @@ def padding_mask(mask_map):
     mask_ur = mask_center+(mask_map.meta["naxis1"]//2,mask_map.meta["naxis2"]//2)
     full_disk_coord = 4096
     pad_width = np.array([[full_disk_coord-mask_ur[1],mask_ll[1]],[mask_ll[0],full_disk_coord-mask_ur[0]]])
-    padded_mask_map = np.pad(np.flipud(binarized_mask_map),np.array(pad_width,dtype="int"),"constant")
-    # print(mask_center,mask_ll,mask_ur)
+    try:
+        padded_mask_map = np.pad(np.flipud(binarized_mask_map),np.array(pad_width,dtype="int"),"constant")
+    except ValueError:
+        print("error occured")
+        print(mask_center,mask_ll,mask_ur)
+        padded_mask_map = np.ndarray([0,0])
+        
     return padded_mask_map
 def rotate_map(mask_map,padded_mask_map):
     height = FULL_DISK_COORD
@@ -122,10 +144,20 @@ def polygonize_map(mask_map,rotated_padded_mask_map):
             ar_polygons.append(points)
     # print("len(ar_polygons)",len(ar_polygons))
     return ar_polygons
-def initialize_series ():
+def initialize_df ():
     time_index = pd.date_range(start = START,end = END,freq ="H")
-    time_series = pd.Series([[] for i in range(len(time_index))],index = time_index)
-    return time_series
+    time_df = pd.DataFrame([[[],[],[],[]] for i in range(len(time_index))],index = time_index,columns =["Polygon","C_Flare","M_Flare","X_Flare"])
+    return time_df
+def add_flare_label(coord_df,flare_df,rec_datetime):
+    if (flare_df.loc[rec_datetime]["CFLARE_LABEL_LOC"]!="None"):
+        print(flare_df.loc[rec_datetime]["CFLARE_LABEL_LOC"])
+        coord_df.loc[rec_datetime]["C_FLARE"].append(flare_df.loc[rec_datetime]["CFLARE_LABEL_LOC"])
+    if (flare_df.loc[rec_datetime]["MFLARE_LABEL_LOC"]!="None"):
+        print(flare_df.loc[rec_datetime]["MFLARE_LABEL_LOC"])
+        coord_df.loc[rec_datetime]["M_FLARE"].append(flare_df.loc[rec_datetime]["MFLARE_LABEL_LOC"])
+    if (flare_df.loc[rec_datetime]["XFLARE_LABEL_LOC"]!="None"):
+        print(flare_df.loc[rec_datetime]["XFLARE_LABEL_LOC"])
+        coord_df.loc[rec_datetime]["X_FLARE"].append(flare_df.loc[rec_datetime]["XFLARE_LABEL_LOC"])
 def pickle_dump(obj, path):
     with open(path, mode='wb') as f:
         pickle.dump(obj,f)
