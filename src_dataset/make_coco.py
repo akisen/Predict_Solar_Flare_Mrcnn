@@ -32,8 +32,8 @@ def images(paths):
 def annotations(pickle_path):
     tmps = []
     print(pickle_path)
-    coord_series = pd.read_pickle(pickle_path)
-    print(coord_series.keys())
+    coord_df = pd.read_pickle(pickle_path)
+    print(coord_df.keys())
     #TODO: CoordSeriesを拡張して横に一列追加→フレアラベルのリストを追記
     exit()
     return tmps
@@ -54,7 +54,6 @@ def main():
             tmp = images(paths)
         else:
             tmp = annotations(pickle_path)
-            pass
         js[query_list[i]] = tmp
     fw = open("datasets.json","w")
     json.dump(js,fw,indent=2)
