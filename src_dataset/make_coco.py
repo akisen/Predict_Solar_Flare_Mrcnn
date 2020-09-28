@@ -34,6 +34,7 @@ def annotations(pickle_path):
     print(pickle_path)
     coord_series = pd.read_pickle(pickle_path)
     print(coord_series.keys())
+    #TODO: CoordSeriesを拡張して横に一列追加→フレアラベルのリストを追記
     exit()
     return tmps
 def main():
