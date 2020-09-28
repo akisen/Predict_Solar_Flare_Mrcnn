@@ -6,3 +6,4 @@ logs/*
 samples/sun/*
 *.pyc
 *.pickle
+*.png
