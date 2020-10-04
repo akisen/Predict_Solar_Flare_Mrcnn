@@ -40,9 +40,10 @@ def main():
         coord_df=pd.read_pickle(pickle_path)
     else:
         coord_df = initialize_df()
+    print(mask_paths)
     for mask_path in tqdm(mask_paths):
         mask_map = sunpy.map.Map(mask_path)
-        ar_num=mask_path.split(".")[3]
+        ar_num=mask_path.split(".")[-4]
         flare_df = pd.read_table(flare_df_paths_dic[str(ar_num)])
         flare_df["Timestamp"] = pd.to_datetime(flare_df["Timestamp"])
         # print(flare_df)
@@ -63,7 +64,7 @@ def main():
         ar_polygon = polygonize_map(mask_map, rotated_padded_mask_map)
         # print("ar_polygon:",ar_polygon)
         # utils.show_polygon(ar_polygon[0])
-        # print("now:",len(ar_polygon))
+        print("now:",len(ar_polygon))
         # 一つのSHARPデータの中に複数のPolygonが入っていた場合を考慮
         if (len(ar_polygon)==1):
             if(len(ar_polygon[0])!=2):
@@ -86,7 +87,7 @@ def main():
                         # print("len2_F",mask_path,len(polygon))
                         coord_df.loc[rec_datetime]["Polygon"].append(polygon)
                         add_flare_label(coord_df,flare_df,rec_datetime)
-        # print("sum:",len(coord_df.loc[rec_datetime]["Polygon"]))
+        print("sum:",len(coord_df.loc[rec_datetime]["Polygon"]))
         # utils.show_polygons(ar_polygon)
         # print(coord_df[rec_datetime])
         if args.pickle_path:
@@ -111,6 +112,7 @@ def padding_mask(mask_map):
         padded_mask_map = np.ndarray([0,0])
         
     return padded_mask_map
+
 def rotate_map(mask_map,padded_mask_map):
     height = FULL_DISK_COORD
     width = FULL_DISK_COORD
@@ -121,6 +123,7 @@ def rotate_map(mask_map,padded_mask_map):
     rotated_padded_mask_map = cv2.warpAffine(padded_mask_map.astype("int16"),trans,(width,height))
     rotated_padded_mask_map = np.flipud(rotated_padded_mask_map)
     return rotated_padded_mask_map
+
 def polygonize_map(mask_map,rotated_padded_mask_map):
     mask_center = np.array([mask_map.reference_pixel[0].value,mask_map.reference_pixel[1].value])
     mask_ll = mask_center-(mask_map.meta["naxis1"]//2,mask_map.meta["naxis2"]//2)
@@ -144,23 +147,33 @@ def polygonize_map(mask_map,rotated_padded_mask_map):
             ar_polygons.append(points)
     # print("len(ar_polygons)",len(ar_polygons))
     return ar_polygons
+
 def initialize_df ():
     time_index = pd.date_range(start = START,end = END,freq ="H")
-    time_df = pd.DataFrame([[[],[],[],[]] for i in range(len(time_index))],index = time_index,columns =["Polygon","C_Flare","M_Flare","X_Flare"])
+    time_df = pd.DataFrame([[[],[],[],[]] for i in range(len(time_index))],index = time_index,columns =["Polygon","C_FLARE","M_FLARE","X_FLARE"])
     return time_df
+
 def add_flare_label(coord_df,flare_df,rec_datetime):
     if (flare_df.loc[rec_datetime]["CFLARE_LABEL_LOC"]!="None"):
         print(flare_df.loc[rec_datetime]["CFLARE_LABEL_LOC"])
         coord_df.loc[rec_datetime]["C_FLARE"].append(flare_df.loc[rec_datetime]["CFLARE_LABEL_LOC"])
+    else:
+        coord_df.loc[rec_datetime]["C_FLARE"].append(0)
     if (flare_df.loc[rec_datetime]["MFLARE_LABEL_LOC"]!="None"):
         print(flare_df.loc[rec_datetime]["MFLARE_LABEL_LOC"])
         coord_df.loc[rec_datetime]["M_FLARE"].append(flare_df.loc[rec_datetime]["MFLARE_LABEL_LOC"])
+    else:
+        coord_df.loc[rec_datetime]["M_FLARE"].append(0)
     if (flare_df.loc[rec_datetime]["XFLARE_LABEL_LOC"]!="None"):
         print(flare_df.loc[rec_datetime]["XFLARE_LABEL_LOC"])
         coord_df.loc[rec_datetime]["X_FLARE"].append(flare_df.loc[rec_datetime]["XFLARE_LABEL_LOC"])
+    else:
+        coord_df.loc[rec_datetime]["X_FLARE"].append(0)
+
 def pickle_dump(obj, path):
     with open(path, mode='wb') as f:
         pickle.dump(obj,f)
+
 def pickle_load(path):
     with open(path, mode='rb') as f:
         data = pickle.load(f)

@@ -10,7 +10,7 @@ warnings.simplefilter('ignore')
 parser = argparse.ArgumentParser()
 parser.add_argument("input_path")
 parser.add_argument("output_path")
-parser.add_argument("--format",default="datetime")
+parser.add_argument("--format",default="datetime",type=str)
 
 args = parser.parse_args()
 input_path = args.input_path
