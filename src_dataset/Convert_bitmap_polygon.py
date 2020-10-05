@@ -110,7 +110,6 @@ def padding_mask(mask_map):
         print("error occured")
         print(mask_center,mask_ll,mask_ur)
         padded_mask_map = np.ndarray([0,0])
-        
     return padded_mask_map
 
 def rotate_map(mask_map,padded_mask_map):
@@ -167,13 +166,9 @@ def add_flare_label(coord_df,flare_df,rec_datetime):
     if (flare_df.loc[rec_datetime]["XFLARE_LABEL_LOC"]!="None"):
         print(flare_df.loc[rec_datetime]["XFLARE_LABEL_LOC"])
         coord_df.loc[rec_datetime]["X_FLARE"].append(flare_df.loc[rec_datetime]["XFLARE_LABEL_LOC"])
-    else:
-        coord_df.loc[rec_datetime]["X_FLARE"].append(0)
-
 def pickle_dump(obj, path):
     with open(path, mode='wb') as f:
         pickle.dump(obj,f)
-
 def pickle_load(path):
     with open(path, mode='rb') as f:
         data = pickle.load(f)

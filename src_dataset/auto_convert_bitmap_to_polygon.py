@@ -15,7 +15,7 @@ with tqdm(total = len(years) * len(months)-4) as pbar:
                 pbar.update(1)
                 subprocess.run(command, shell=True)
             else:
-                command = 'python3 Convert_bitmap_polygon.py "/media/akito/Data21/hmi.Mharp_720s/{0}/{0}{1}/*.bitmap.fits" "/media/akito/Data/SWAN_Flare/dataverse_files/SWAN/*/*" --pickle_path "/home/akito/Documents/Documents/Predict_Solar_Flare_Mrcnn/Coord_series.pickle"'.format(year, str(month).zfill(2))
+                command = 'python3 Convert_bitmap_polygon.py "/media/akito/Data21/hmi.Mharp_720s/{0}/{0}{1}/*.bitmap.fits" "/media/akito/Data/SWAN_Flare/dataverse_files/SWAN/*/*" --pickle_path "/home/akito/Documents/Documents/Predict_Solar_Flare_Mrcnn/coord_df.pickle"'.format(year, str(month).zfill(2))
                 print(command)
                 pbar.update(1)
                 subprocess.run(command, shell=True)
