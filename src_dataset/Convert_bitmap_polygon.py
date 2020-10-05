@@ -40,7 +40,7 @@ def main():
         coord_df=pd.read_pickle(pickle_path)
     else:
         coord_df = initialize_df()
-    print(mask_paths)
+    # print(mask_paths)
     for mask_path in tqdm(mask_paths):
         mask_map = sunpy.map.Map(mask_path)
         ar_num=mask_path.split(".")[-4]
@@ -64,7 +64,7 @@ def main():
         ar_polygon = polygonize_map(mask_map, rotated_padded_mask_map)
         # print("ar_polygon:",ar_polygon)
         # utils.show_polygon(ar_polygon[0])
-        print("now:",len(ar_polygon))
+        # tqdm.write("now:{}".format(len(ar_polygon)))
         # 一つのSHARPデータの中に複数のPolygonが入っていた場合を考慮
         if (len(ar_polygon)==1):
             if(len(ar_polygon[0])!=2):
@@ -87,7 +87,7 @@ def main():
                         # print("len2_F",mask_path,len(polygon))
                         coord_df.loc[rec_datetime]["Polygon"].append(polygon)
                         add_flare_label(coord_df,flare_df,rec_datetime)
-        print("sum:",len(coord_df.loc[rec_datetime]["Polygon"]))
+        # tqdm.write("sum:{}".format(len(coord_df.loc[rec_datetime]["Polygon"])))
         # utils.show_polygons(ar_polygon)
         # print(coord_df[rec_datetime])
         if args.pickle_path:
