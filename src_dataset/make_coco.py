@@ -24,25 +24,26 @@ def images(paths):
         datetime = filename.split(".")[2]
         tmp["id"] = datetime[0:15]
         tmp ["file_name"] = datetime[0:15]+".png"
-        tmp["width"] = 4096
-        tmp["height"] =4096
+        tmp["width"] = 4102
+        tmp["height"] = 4102
         tmp["date_captured"] = map.meta['t_rec'][:-4]
         tmps.append(tmp)
     return tmps
+
 def annotations(pickle_path):
     tmps = []
     print(pickle_path)
     coord_df = pd.read_pickle(pickle_path)
-    print(coord_df.keys())
-    #TODO: CoordSeriesを拡張して横に一列追加→フレアラベルのリストを追記
+    print(coord_df.iloc[0]["Polygon"])
     exit()
     return tmps
+
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("path",help="input file path.")
+    parser.add_argument("image_path",help="input image file path.")
     parser.add_argument("pickle_path")
     args = parser.parse_args()
-    paths = args.path
+    image_paths = args.image_path
     pickle_path = args.pickle_path
     query_list = ["info","images","annotations"]
     js = cl.OrderedDict()
@@ -51,7 +52,7 @@ def main():
         if query_list[i] == "info":
             tmp =info()
         elif query_list[i] == "images":
-            tmp = images(paths)
+            tmp = images(image_paths)
         else:
             tmp = annotations(pickle_path)
         js[query_list[i]] = tmp

@@ -19,6 +19,7 @@ import argparse
 import utils
 import pickle
 from tqdm import tqdm
+
 FULL_DISK_COORD = 4096
 START = "2010-05-01"
 END = "2020-01-01"
