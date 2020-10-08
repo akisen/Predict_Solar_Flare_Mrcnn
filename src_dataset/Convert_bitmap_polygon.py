@@ -41,7 +41,7 @@ def main():
         coord_df=pd.read_pickle(pickle_path)
     else:
         coord_df = initialize_df()
-    print(mask_paths)
+    # print(mask_paths)
     for mask_path in tqdm(mask_paths):
         mask_map = sunpy.map.Map(mask_path)
         ar_num=mask_path.split(".")[-4]
@@ -65,7 +65,7 @@ def main():
         ar_polygon = polygonize_map(mask_map, rotated_padded_mask_map)
         # print("ar_polygon:",ar_polygon)
         # utils.show_polygon(ar_polygon[0])
-        print("now:",len(ar_polygon))
+        # tqdm.write("now:{}".format(len(ar_polygon)))
         # 一つのSHARPデータの中に複数のPolygonが入っていた場合を考慮
         if (len(ar_polygon)==1):
             if(len(ar_polygon[0])!=2):
@@ -88,7 +88,7 @@ def main():
                         # print("len2_F",mask_path,len(polygon))
                         coord_df.loc[rec_datetime]["Polygon"].append(polygon)
                         add_flare_label(coord_df,flare_df,rec_datetime)
-        print("sum:",len(coord_df.loc[rec_datetime]["Polygon"]))
+        # tqdm.write("sum:{}".format(len(coord_df.loc[rec_datetime]["Polygon"])))
         # utils.show_polygons(ar_polygon)
         # print(coord_df[rec_datetime])
         if args.pickle_path:
@@ -111,7 +111,6 @@ def padding_mask(mask_map):
         print("error occured")
         print(mask_center,mask_ll,mask_ur)
         padded_mask_map = np.ndarray([0,0])
-        
     return padded_mask_map
 
 def rotate_map(mask_map,padded_mask_map):
@@ -168,13 +167,9 @@ def add_flare_label(coord_df,flare_df,rec_datetime):
     if (flare_df.loc[rec_datetime]["XFLARE_LABEL_LOC"]!="None"):
         print(flare_df.loc[rec_datetime]["XFLARE_LABEL_LOC"])
         coord_df.loc[rec_datetime]["X_FLARE"].append(flare_df.loc[rec_datetime]["XFLARE_LABEL_LOC"])
-    else:
-        coord_df.loc[rec_datetime]["X_FLARE"].append(0)
-
 def pickle_dump(obj, path):
     with open(path, mode='wb') as f:
         pickle.dump(obj,f)
-
 def pickle_load(path):
     with open(path, mode='rb') as f:
         data = pickle.load(f)
