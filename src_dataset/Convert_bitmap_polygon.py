@@ -51,8 +51,8 @@ def main():
         padded_mask_map = padding_mask(mask_map)
         # print(padded_mask_map.shape)
         if (padded_mask_map.shape == (0,0)):
-            print("error : continue")
-            print(mask_path)
+            tqdm.write("error : continue")
+            tqdm.write(mask_path)
             continue
         rotated_padded_mask_map = rotate_map(mask_map, padded_mask_map)
         # utils.compare_map(padded_mask_map,rotated_padded_mask_map)
@@ -97,11 +97,10 @@ def padding_mask(mask_map):
     mask_ur = mask_center+(mask_map.meta["naxis1"]//2,mask_map.meta["naxis2"]//2)
     full_disk_coord = 4096
     pad_width = np.array([[full_disk_coord-mask_ur[1],mask_ll[1]],[mask_ll[0],full_disk_coord-mask_ur[0]]])
-    try:
+    if(mask_ll[0]>=0 and mask_ll[1]>=0):
         padded_mask_map = np.pad(np.flipud(binarized_mask_map),np.array(pad_width,dtype="int"),"constant")
-    except ValueError:
-        tqdm.write("error occured")
-        tqdm.write(mask_center,mask_ll,mask_ur)
+    else:
+        tqdm.write("{}{}{}".format(mask_center,mask_ll,mask_ur))
         padded_mask_map = np.ndarray([0,0])
     return padded_mask_map
 
@@ -146,22 +145,33 @@ def initialize_df (start,end):
     return time_df
 
 def add_flare_label(coord_df,flare_df,rec_datetime):
-    if (flare_df.loc[rec_datetime]["CFLARE_LABEL_LOC"]!="None"):
-        tqdm.write(flare_df.loc[rec_datetime]["CFLARE_LABEL_LOC"])
-        coord_df.loc[rec_datetime]["C_FLARE"].append(flare_df.loc[rec_datetime]["CFLARE_LABEL_LOC"])
-    else:
-        coord_df.loc[rec_datetime]["C_FLARE"].append(0)
-    if (flare_df.loc[rec_datetime]["MFLARE_LABEL_LOC"]!="None"):
-        tqdm.write(flare_df.loc[rec_datetime]["MFLARE_LABEL_LOC"])
-        coord_df.loc[rec_datetime]["M_FLARE"].append(flare_df.loc[rec_datetime]["MFLARE_LABEL_LOC"])
-    else:
-        coord_df.loc[rec_datetime]["M_FLARE"].append(0)
-    if (flare_df.loc[rec_datetime]["XFLARE_LABEL_LOC"]!="None"):
-        tqdm.write(flare_df.loc[rec_datetime]["XFLARE_LABEL_LOC"])
-        coord_df.loc[rec_datetime]["X_FLARE"].append(flare_df.loc[rec_datetime]["XFLARE_LABEL_LOC"])
+    with open("../logs/{}{}.txt".format(rec_datetime.year,str(rec_datetime.month).zfill(2)),mode="a") as f:
+        if (flare_df.loc[rec_datetime]["CFLARE_LABEL_LOC"]!="None"):
+            label = flare_df.loc[rec_datetime]["CFLARE_LABEL_LOC"]
+            tqdm.write(label)
+            coord_df.loc[rec_datetime]["C_FLARE"].append(label)
+            f.write("{}:{}\n".format(rec_datetime,label))
+        else:
+            coord_df.loc[rec_datetime]["C_FLARE"].append(0)
+        if (flare_df.loc[rec_datetime]["MFLARE_LABEL_LOC"]!="None"):
+            label = flare_df.loc[rec_datetime]["MFLARE_LABEL_LOC"]
+            tqdm.write(label)
+            coord_df.loc[rec_datetime]["M_FLARE"].append(label)
+            f.write("{}:{}\n".format(rec_datetime,label))
+        else:
+            coord_df.loc[rec_datetime]["M_FLARE"].append(0)
+        if (flare_df.loc[rec_datetime]["XFLARE_LABEL_LOC"]!="None"):
+            label = flare_df.loc[rec_datetime]["XFLARE_LABEL_LOC"]
+            tqdm.write(label)
+            coord_df.loc[rec_datetime]["X_FLARE"].append(label)
+            f.write("{}:{}\n".format(rec_datetime,label))
+        else:
+            coord_df.loc[rec_datetime]["X_FLARE"].append(0)
+
 def pickle_dump(obj, path):
     with open(path, mode='wb') as f:
         pickle.dump(obj,f)
+
 def pickle_load(path):
     with open(path, mode='rb') as f:
         data = pickle.load(f)
