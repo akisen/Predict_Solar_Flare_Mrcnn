@@ -36,39 +36,28 @@ def main():
     start = start.replace(day=1,hour=0)
     end =start+relativedelta(months=1)
     coord_df = initialize_df(start,end)
-    # print(mask_paths)
     for mask_path in tqdm(mask_paths,desc ="{}-{}".format(start,end)):
         mask_map = sunpy.map.Map(mask_path)
         ar_num=mask_path.split(".")[-4]
         flare_df = pd.read_table(flare_df_paths_dic[str(ar_num)])
         flare_df["Timestamp"] = pd.to_datetime(flare_df["Timestamp"])
-        # print(flare_df)
         flare_df.set_index("Timestamp",inplace = True)
-        # print(flare_df)
         rec_datetime = dt.strptime(mask_map.meta["t_rec"][:-4],"%Y.%m.%d_%H:%M:%S")
         # print(flare_df.loc[rec_datetime])# 時間以上の精度で参照するときは.loc関数を使用する
         mask_map = sunpy.map.Map(mask_path)
         padded_mask_map = padding_mask(mask_map)
-        # print(padded_mask_map.shape)
         if (padded_mask_map.shape == (0,0)):
             tqdm.write("error : continue")
             tqdm.write(mask_path)
             continue
         rotated_padded_mask_map = rotate_map(mask_map, padded_mask_map)
-        # utils.compare_map(padded_mask_map,rotated_padded_mask_map)
-        # exit()
         ar_polygon = polygonize_map(mask_map, rotated_padded_mask_map)
-        # print("ar_polygon:",ar_polygon)
-        # utils.show_polygon(ar_polygon[0])
-        # tqdm.write("now:{}".format(len(ar_polygon)))
         # 一つのSHARPデータの中に複数のPolygonが入っていた場合を考慮
         if (len(ar_polygon)==1):
             if(len(ar_polygon[0])!=2):
-                # print("len1_T",mask_path,len(ar_polygon[0]))
                 coord_df.loc[rec_datetime]["Polygon"].append(ar_polygon[0])
                 add_flare_label(coord_df,flare_df,rec_datetime)
             else:
-                # print("len1_F",mask_path,len(ar_polygon))
                 coord_df.loc[rec_datetime]["Polygon"].append(ar_polygon)
                 add_flare_label(coord_df,flare_df,rec_datetime)
         elif(len(ar_polygon)==0):
@@ -76,16 +65,11 @@ def main():
         else:
             for polygon in ar_polygon:
                 if(len(polygon[0])!=2):
-                        # print("len2_T",mask_path,len(polygon[0]))
                         coord_df.loc[rec_datetime]["Polygon"].append(polygon[0])
                         add_flare_label(coord_df,flare_df,rec_datetime)
                 else:
-                        # print("len2_F",mask_path,len(polygon))
                         coord_df.loc[rec_datetime]["Polygon"].append(polygon)
                         add_flare_label(coord_df,flare_df,rec_datetime)
-        # tqdm.write("sum:{}".format(len(coord_df.loc[rec_datetime]["Polygon"])))
-        # utils.show_polygons(ar_polygon)
-        # print(coord_df[rec_datetime])
     coord_df.to_pickle("../coord_dfs/{}{}coord_df.pickle".format(start.year,str(start.month).zfill(2)))
 
     
@@ -119,24 +103,17 @@ def polygonize_map(mask_map,rotated_padded_mask_map):
     mask_center = np.array([mask_map.reference_pixel[0].value,mask_map.reference_pixel[1].value])
     mask_ll = mask_center-(mask_map.meta["naxis1"]//2,mask_map.meta["naxis2"]//2)
     mask_ur = mask_center+(mask_map.meta["naxis1"]//2,mask_map.meta["naxis2"]//2)
-    # print("coord:",mask_center,mask_ll,mask_ur)
     left = int(FULL_DISK_COORD-mask_ur[0])
     right = int(FULL_DISK_COORD-mask_ll[0])
     lower = int(FULL_DISK_COORD-mask_ur[1])
     upper = int(FULL_DISK_COORD-mask_ll[1])
-    # print("rotated_coord:",left,right,lower,upper)
-    # exit()
     rotated_ar_mask_map = rotated_padded_mask_map[lower:upper,left:right]
     ar_polygons =[]
     ar_polygon_gen = shapes(rotated_ar_mask_map.astype("int16"),mask=None,connectivity = 8)
     for i,polygon in enumerate(ar_polygon_gen):
-        # print(i,"\n")
-        # print(polygon[0]["coordinates"][0])
         if(polygon[0]["coordinates"][0][0]!=(0.0,0.0)):
             points = [(point[0]+left,point[1]+lower)for point in polygon[0]["coordinates"][0]]
-            # print("Points",points)
             ar_polygons.append(points)
-    # print("len(ar_polygons)",len(ar_polygons))
     return ar_polygons
 
 def initialize_df (start,end):
