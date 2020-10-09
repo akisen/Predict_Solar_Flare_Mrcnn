@@ -7,15 +7,10 @@ months =[i+1 for i in range(12)]
 with tqdm(total = len(years) * len(months)-4) as pbar:
     for year in years:
         for month in months:
-            if(year==2010 and month<6):
+            if(year==2010 and month<7):
                 continue
-            # elif(year==2010 and month==5):
-            #     command = 'python3 Convert_bitmap_polygon.py "/media/akito/Data21/hmi.Mharp_720s/{0}/{0}{1}/*.bitmap.fits" "/media/akito/Data/SWAN_Flare/dataverse_files/SWAN/*/*"'.format(year, str(month).zfill(2))
-            #     print(command)
-            #     pbar.update(1)
-            #     subprocess.run(command, shell=True)
             else:
-                command = 'python3 Convert_bitmap_polygon.py "/media/akito/Data21/hmi.Mharp_720s/{0}/{0}{1}/hmi.Mharp_720s.*.fits" "/media/akito/Data/SWAN_Flare/dataverse_files/SWAN/*/*" --pickle_path "/home/akito/Documents/Predict_Solar_Flare_Mrcnn/coord_df.pickle"'.format(year, str(month).zfill(2))
+                command = 'python3 Convert_bitmap_polygon.py "/media/akito/Data21/hmi.Mharp_720s/{0}/{0}{1}/hmi.Mharp_720s.*.fits" "/media/akito/Data/SWAN_Flare/dataverse_files/SWAN/*/*"'.format(year, str(month).zfill(2))
                 print(command)
                 pbar.update(1)
                 subprocess.run(command, shell=True)

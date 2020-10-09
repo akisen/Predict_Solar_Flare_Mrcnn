@@ -19,30 +19,25 @@ import argparse
 import utils
 import pickle
 from tqdm import tqdm
-
+from dateutil.relativedelta import relativedelta
 FULL_DISK_COORD = 4096
-START = "2010-05-01"
-END = "2020-01-01"
 
 parser = argparse.ArgumentParser()
 parser.add_argument("input_mask_path")
 parser.add_argument("input_flare_table_path")
-parser.add_argument("--pickle_path")
 args = parser.parse_args()
 def main():
     mask_paths_string = args.input_mask_path
-    pickle_path = args.pickle_path
-    # print(mask_paths_string)
     mask_paths = sorted(glob.glob(mask_paths_string))
     flare_df_paths_string = args.input_flare_table_path
     flare_df_paths = sorted(glob.glob(flare_df_paths_string))
     flare_df_paths_dic = {path.split("/")[-1][:-4]:path for path in flare_df_paths}
-    if args.pickle_path:
-        coord_df=pd.read_pickle(pickle_path)
-    else:
-        coord_df = initialize_df()
+    start = dt.strptime(mask_paths[0].split(".")[-3], "%Y%m%d_%H%M%S_TAI")
+    start = start.replace(day=1,hour=0)
+    end =start+relativedelta(months=1)
+    coord_df = initialize_df(start,end)
     # print(mask_paths)
-    for mask_path in tqdm(mask_paths):
+    for mask_path in tqdm(mask_paths,desc ="{}-{}".format(start,end)):
         mask_map = sunpy.map.Map(mask_path)
         ar_num=mask_path.split(".")[-4]
         flare_df = pd.read_table(flare_df_paths_dic[str(ar_num)])
@@ -91,10 +86,7 @@ def main():
         # tqdm.write("sum:{}".format(len(coord_df.loc[rec_datetime]["Polygon"])))
         # utils.show_polygons(ar_polygon)
         # print(coord_df[rec_datetime])
-        if args.pickle_path:
-            coord_df.to_pickle(pickle_path)
-        else:
-            coord_df.to_pickle("../coord_df.pickle")
+    coord_df.to_pickle("../coord_dfs/{}{}coord_df.pickle".format(start.year,str(start.month).zfill(2)))
 
     
 
@@ -108,8 +100,8 @@ def padding_mask(mask_map):
     try:
         padded_mask_map = np.pad(np.flipud(binarized_mask_map),np.array(pad_width,dtype="int"),"constant")
     except ValueError:
-        print("error occured")
-        print(mask_center,mask_ll,mask_ur)
+        tqdm.write("error occured")
+        tqdm.write(mask_center,mask_ll,mask_ur)
         padded_mask_map = np.ndarray([0,0])
     return padded_mask_map
 
@@ -148,24 +140,24 @@ def polygonize_map(mask_map,rotated_padded_mask_map):
     # print("len(ar_polygons)",len(ar_polygons))
     return ar_polygons
 
-def initialize_df ():
-    time_index = pd.date_range(start = START,end = END,freq ="H")
+def initialize_df (start,end):
+    time_index = pd.date_range(start = start,end = end,freq ="H")
     time_df = pd.DataFrame([[[],[],[],[]] for i in range(len(time_index))],index = time_index,columns =["Polygon","C_FLARE","M_FLARE","X_FLARE"])
     return time_df
 
 def add_flare_label(coord_df,flare_df,rec_datetime):
     if (flare_df.loc[rec_datetime]["CFLARE_LABEL_LOC"]!="None"):
-        print(flare_df.loc[rec_datetime]["CFLARE_LABEL_LOC"])
+        tqdm.write(flare_df.loc[rec_datetime]["CFLARE_LABEL_LOC"])
         coord_df.loc[rec_datetime]["C_FLARE"].append(flare_df.loc[rec_datetime]["CFLARE_LABEL_LOC"])
     else:
         coord_df.loc[rec_datetime]["C_FLARE"].append(0)
     if (flare_df.loc[rec_datetime]["MFLARE_LABEL_LOC"]!="None"):
-        print(flare_df.loc[rec_datetime]["MFLARE_LABEL_LOC"])
+        tqdm.write(flare_df.loc[rec_datetime]["MFLARE_LABEL_LOC"])
         coord_df.loc[rec_datetime]["M_FLARE"].append(flare_df.loc[rec_datetime]["MFLARE_LABEL_LOC"])
     else:
         coord_df.loc[rec_datetime]["M_FLARE"].append(0)
     if (flare_df.loc[rec_datetime]["XFLARE_LABEL_LOC"]!="None"):
-        print(flare_df.loc[rec_datetime]["XFLARE_LABEL_LOC"])
+        tqdm.write(flare_df.loc[rec_datetime]["XFLARE_LABEL_LOC"])
         coord_df.loc[rec_datetime]["X_FLARE"].append(flare_df.loc[rec_datetime]["XFLARE_LABEL_LOC"])
 def pickle_dump(obj, path):
     with open(path, mode='wb') as f:
