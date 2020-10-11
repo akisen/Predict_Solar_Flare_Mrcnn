@@ -3,3 +3,9 @@ images/*
 assets/*
 logs/*
 *.csv
+samples/sun/*
+*.pyc
+*.pickle
+*.png
+*.json
+*.pyc
