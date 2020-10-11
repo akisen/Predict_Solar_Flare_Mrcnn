@@ -7,3 +7,5 @@ samples/sun/*
 *.pyc
 *.pickle
 *.png
+*.json
+*.pyc

@@ -47,8 +47,8 @@ def annotations(pickle_path):
 
 def make_annotation_line(line,tmp):
     tmps = []
-    tmp = cl.OrderedDict()
     for i in tqdm(range(len(line["Polygon"])),desc="Annotation"):
+        tmp = cl.OrderedDict()
         polygon = Polygon(line["Polygon"][i])
         tmp["segmentation"] = list(itertools.chain.from_iterable(line["Polygon"][i]))
         tmp["area"] = polygon.area
