@@ -9,3 +9,5 @@ samples/sun/*
 *.png
 *.json
 *.pyc
+
+*.fits
