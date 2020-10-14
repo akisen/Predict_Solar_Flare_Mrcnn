@@ -26,8 +26,7 @@ class SunConfig(Config):
 
     # We use a GPU with 12GB memory, which can fit two images.
     # Adjust down if you use a smaller GPU.
-    IMAGES_PER_GPU = 1
-
+    IMAGES_PER_GPU = 2
 
     # Number of classes (including background)
     NUM_CLASSES = 1 + 2  # ARorQRの2通り＋Background
@@ -63,3 +62,16 @@ if __name__ == '__main__':
     print("Model: ", args.model)
     print("Dataset: ", args.dataset)
     print("Logs: ", args.logs)
+
+        # Configurations
+    if args.command == "train":
+        config = SunConfig()
+    else:
+        class InferenceConfig(SunConfig):
+            # Set batch size to 1 since we'll be running inference on
+            # one image at a time. Batch size = GPU_COUNT * IMAGES_PER_GPU
+            GPU_COUNT = 1
+            IMAGES_PER_GPU = 2
+            DETECTION_MIN_CONFIDENCE = 0
+        config = InferenceConfig()
+    config.display()
