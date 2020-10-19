@@ -29,8 +29,8 @@ def images(paths):
         datetime = filename.split(".")[2]
         tmp["id"] = datetime[0:15]
         tmp ["file_name"] = datetime[0:15]+".png"
-        tmp["width"] = 4102
-        tmp["height"] = 4102
+        tmp["width"] = 4096
+        tmp["height"] = 4096
         tmp["date_captured"] = map.meta['t_rec'][:-4]
         tmps.append(tmp)
         tqdm.write(str(tmp))
@@ -89,5 +89,6 @@ def main():
     utils.pickle_dump(js,"../coco_pickles/{}.pickle".format(pickle_path[-21:-15]))
     # fw = open("datasets.json","w")
     # json.dump(js,fw,indent=2)
+
 if __name__ == "__main__":
     main()

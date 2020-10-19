@@ -11,7 +11,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("input_path")
 parser.add_argument("output_path")
 parser.add_argument("--format",default="datetime",type=str)
-
+FULL_DISK_COORD = 4096
 args = parser.parse_args()
 input_path = args.input_path
 paths = sorted(glob(input_path))
@@ -22,6 +22,13 @@ for i, path in enumerate(tqdm(paths)):
     else:
         filename=str(args.output_path)+path.split(".")[2][0:15]+".jpg"
     map=sunpy.map.Map(path)
-    map_rotated = map.rotate(angle = -1*float(map.meta["crota2"])*u.deg)
+    height = FULL_DISK_COORD
+    width = FULL_DISK_COORD
+    center = (map.meta["crpix1"],map.meta["crpix2"])
+    angle = -1* map.meta["crota2"]
+    scale = 1.0
+    trans = cv2.getRotationMatrix2D(center,angle,scale)
+    rotated_map = cv2.warpAffine(map.data.astype("int16"),trans,(width,height))
+    print(rotated_map.shape)
     # print(filename)
-    cv2.imwrite(filename,map_rotated.data)
+    cv2.imwrite(filename,rotated_map)
