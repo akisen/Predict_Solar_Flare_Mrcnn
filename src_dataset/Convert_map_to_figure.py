@@ -29,6 +29,5 @@ for i, path in enumerate(tqdm(paths)):
     scale = 1.0
     trans = cv2.getRotationMatrix2D(center,angle,scale)
     rotated_map = cv2.warpAffine(map.data.astype("int16"),trans,(width,height))
-    print(rotated_map.shape)
     # print(filename)
     cv2.imwrite(filename,rotated_map)

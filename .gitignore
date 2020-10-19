@@ -9,3 +9,5 @@ samples/sun/*
 *.png
 *.json
 *.pyc
+
+src_dataset/__pycache__/
