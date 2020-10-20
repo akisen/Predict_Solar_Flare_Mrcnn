@@ -9,7 +9,7 @@ import time
 import numpy as np
 import imgaug
 
-ROOT_DIR = os.path.abspath("/home/jovyan/maskr-cnn")
+ROOT_DIR = os.path.abspath("/home/maskr-cnn")
 print(ROOT_DIR)
 sys.path.append(ROOT_DIR)
 
@@ -18,6 +18,9 @@ from mrcnn import model as modellib, utils
 
 DEFAULT_LOGS_DIR = os.path.join(ROOT_DIR, "logs")
 from pycocotools.coco import COCO
+
+# Path to trained weights file
+COCO_MODEL_PATH = os.path.join(ROOT_DIR, "mask_rcnn_coco.h5")
 
 class SunConfig(Config):
     # 太陽データを使用して学習するに当たって変更すべきConfigを変更
@@ -75,3 +78,27 @@ if __name__ == '__main__':
             DETECTION_MIN_CONFIDENCE = 0
         config = InferenceConfig()
     config.display()
+        # Create model
+    if args.command == "train":
+        model = modellib.MaskRCNN(mode="training", config=config,
+                                  model_dir=args.logs)
+    else:
+        model = modellib.MaskRCNN(mode="inference", config=config,
+                                  model_dir=args.logs)
+    
+    # Select weights file to load
+    if args.model.lower() == "coco":
+        model_path = COCO_MODEL_PATH
+    elif args.model.lower() == "last":
+        # Find last trained weights
+        model_path = model.find_last()
+    elif args.model.lower() == "imagenet":
+        # Start from ImageNet trained weights
+        model_path = model.get_imagenet_weights()
+    else:
+        model_path = args.model
+
+    # Load weights 
+    print("Loading weights ", model_path)
+    model.load_weights(model_path, by_name=True)
+# TODO:Annotation読み込み
