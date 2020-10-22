@@ -10,3 +10,4 @@ samples/sun/*
 *.json
 *.pyc
 *.fits
+wget-log*
