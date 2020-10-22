@@ -33,7 +33,7 @@ def images(paths):
         tmp["height"] = 4096
         tmp["date_captured"] = map.meta['t_rec'][:-4]
         tmps.append(tmp)
-        tqdm.write(str(tmp))
+        # tqdm.write(str(tmp))
     return tmps
 
 def annotations(pickle_path):
@@ -42,12 +42,12 @@ def annotations(pickle_path):
     coord_df = coord_df.apply(make_annotation_line,tmp=tmps,axis=1)
     # annotations = [annotation for annotation in series for series in coord_df]
     annotations = [coord_df.iloc[i][j] for i in range(len(coord_df)) for j in range(len(coord_df[i]) )]
-    print(len(annotations))
     return annotations
 
 def make_annotation_line(line,tmp):
     tmps = []
-    for i in tqdm(range(len(line["Polygon"])),desc="Annotation"):
+    for i in range(len(line["Polygon"])):
+        print(line["C_FLARE"])
         tmp = cl.OrderedDict()
         polygon = Polygon(line["Polygon"][i])
         tmp["segmentation"] = list(itertools.chain.from_iterable(line["Polygon"][i]))
@@ -61,11 +61,14 @@ def make_annotation_line(line,tmp):
         tmp["bbox"] = bbox
         # print(tmp["image_id"],tmp["id"])
         # print(line)
-        if(line["C_FLARE"][i]!=0 or line["M_FLARE"][i]!=0 or line["M_FLARE"][i]!=0 ):
-            tmp["category_id"] = 1
-        else:
-            tmp["category_id"] = 0
-        tmps.append(tmp)
+        try:
+            if(line["C_FLARE"][i]!=0 or line["M_FLARE"][i]!=0 or line["M_FLARE"][i]!=0 ):
+                tmp["category_id"] = 1
+            else:
+                tmp["category_id"] = 0
+            tmps.append(tmp)
+        except:
+            pass
     return tmps
 
 def main():
