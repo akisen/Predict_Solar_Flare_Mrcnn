@@ -36,7 +36,12 @@ class SunConfig(Config):
 
 
 class SunDataset(utils.Dataset):
-    pass
+    def load_coco(self, dataset_dir, class_ids=None,class_map=None, return_coco=False):
+        coco = COCO("{}/annotations/dataset.json".format(dataset_dir))
+        image_dir = str(dataset_dir)
+
+        if return_coco:
+            return coco
 
 if __name__ == '__main__':
     import argparse
@@ -101,4 +106,9 @@ if __name__ == '__main__':
     # Load weights 
     print("Loading weights ", model_path)
     model.load_weights(model_path, by_name=True)
-# TODO:Annotation読み込み
+
+    if args.command == "train":
+        # Training dataset. Use the training set and 35K from the
+        # validation set, as as in the Mask RCNN paper.
+        # dataset_train = SunDataset()
+        pass
