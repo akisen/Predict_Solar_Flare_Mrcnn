@@ -1,0 +1,258 @@
+now: 0
+sum: 0
+now: 0
+sum: 0
+now: 0
+sum: 0
+now: 0
+sum: 0
+now: 0
+sum: 0
+now: 0
+sum: 0
+now: 0
+sum: 0
+now: 0
+sum: 0
+now: 0
+sum: 0
+now: 0
+sum: 0
+now: 0
+sum: 0
+now: 0
+sum: 0
+now: 0
+sum: 0
+now: 0
+sum: 0
+now: 0
+sum: 0
+now: 0
+sum: 0
+now: 0
+sum: 0
+now: 0
+sum: 0
+now: 0
+sum: 0
+now: 0
+sum: 0
+now: 0
+sum: 0
+now: 0
+sum: 0
+now: 0
+sum: 0
+now: 0
+sum: 0
+now: 2
+len2 /media/akito/Data/Mharp/bitmap/2010/201005/hmi.Mharp_720s.2.20100501_000000_TAI.bitmap.fits 2
+len2 /media/akito/Data/Mharp/bitmap/2010/201005/hmi.Mharp_720s.2.20100501_000000_TAI.bitmap.fits 2
+sum: 2
+now: 1
+len1 /media/akito/Data/Mharp/bitmap/2010/201005/hmi.Mharp_720s.2.20100501_010000_TAI.bitmap.fits 1
+sum: 1
+now: 0
+sum: 0
+now: 0
+sum: 0
+now: 0
+sum: 0
+now: 0
+sum: 0
+now: 0
+sum: 0
+now: 0
+sum: 0
+now: 0
+sum: 0
+now: 0
+sum: 0
+now: 0
+sum: 0
+now: 0
+sum: 0
+now: 0
+sum: 0
+now: 0
+sum: 0
+now: 0
+sum: 0
+now: 1
+len1 /media/akito/Data/Mharp/bitmap/2010/201005/hmi.Mharp_720s.2.20100501_150000_TAI.bitmap.fits 1
+sum: 1
+now: 1
+len1 /media/akito/Data/Mharp/bitmap/2010/201005/hmi.Mharp_720s.2.20100501_160000_TAI.bitmap.fits 1
+sum: 1
+now: 1
+len1 /media/akito/Data/Mharp/bitmap/2010/201005/hmi.Mharp_720s.2.20100501_170000_TAI.bitmap.fits 1
+sum: 1
+now: 0
+sum: 0
+now: 0
+sum: 0
+now: 0
+sum: 0
+now: 0
+sum: 0
+now: 0
+sum: 0
+now: 0
+sum: 0
+now: 0
+sum: 2
+now: 0
+sum: 1
+now: 0
+sum: 0
+now: 1
+len1 /media/akito/Data/Mharp/bitmap/2010/201005/hmi.Mharp_720s.5.20100501_030000_TAI.bitmap.fits 1
+sum: 1
+now: 1
+len1 /media/akito/Data/Mharp/bitmap/2010/201005/hmi.Mharp_720s.5.20100501_040000_TAI.bitmap.fits 1
+sum: 1
+now: 1
+len1 /media/akito/Data/Mharp/bitmap/2010/201005/hmi.Mharp_720s.5.20100501_050000_TAI.bitmap.fits 1
+sum: 1
+now: 1
+len1 /media/akito/Data/Mharp/bitmap/2010/201005/hmi.Mharp_720s.5.20100501_060000_TAI.bitmap.fits 1
+sum: 1
+now: 1
+len1 /media/akito/Data/Mharp/bitmap/2010/201005/hmi.Mharp_720s.5.20100501_070000_TAI.bitmap.fits 1
+sum: 1
+now: 1
+len1 /media/akito/Data/Mharp/bitmap/2010/201005/hmi.Mharp_720s.5.20100501_080000_TAI.bitmap.fits 1
+sum: 1
+now: 1
+len1 /media/akito/Data/Mharp/bitmap/2010/201005/hmi.Mharp_720s.5.20100501_090000_TAI.bitmap.fits 1
+sum: 1
+now: 1
+len1 /media/akito/Data/Mharp/bitmap/2010/201005/hmi.Mharp_720s.5.20100501_100000_TAI.bitmap.fits 1
+sum: 1
+now: 1
+len1 /media/akito/Data/Mharp/bitmap/2010/201005/hmi.Mharp_720s.5.20100501_110000_TAI.bitmap.fits 1
+sum: 1
+now: 1
+len1 /media/akito/Data/Mharp/bitmap/2010/201005/hmi.Mharp_720s.5.20100501_120000_TAI.bitmap.fits 1
+sum: 1
+now: 1
+len1 /media/akito/Data/Mharp/bitmap/2010/201005/hmi.Mharp_720s.5.20100501_130000_TAI.bitmap.fits 1
+sum: 1
+now: 1
+len1 /media/akito/Data/Mharp/bitmap/2010/201005/hmi.Mharp_720s.5.20100501_140000_TAI.bitmap.fits 1
+sum: 1
+now: 1
+len1 /media/akito/Data/Mharp/bitmap/2010/201005/hmi.Mharp_720s.5.20100501_150000_TAI.bitmap.fits 1
+sum: 2
+now: 1
+len1 /media/akito/Data/Mharp/bitmap/2010/201005/hmi.Mharp_720s.5.20100501_160000_TAI.bitmap.fits 1
+sum: 2
+now: 1
+len1 /media/akito/Data/Mharp/bitmap/2010/201005/hmi.Mharp_720s.5.20100501_170000_TAI.bitmap.fits 1
+sum: 2
+now: 1
+len1 /media/akito/Data/Mharp/bitmap/2010/201005/hmi.Mharp_720s.5.20100501_180000_TAI.bitmap.fits 1
+sum: 1
+now: 1
+len1 /media/akito/Data/Mharp/bitmap/2010/201005/hmi.Mharp_720s.5.20100501_190000_TAI.bitmap.fits 1
+sum: 1
+now: 1
+len1 /media/akito/Data/Mharp/bitmap/2010/201005/hmi.Mharp_720s.5.20100501_200000_TAI.bitmap.fits 1
+sum: 1
+now: 1
+len1 /media/akito/Data/Mharp/bitmap/2010/201005/hmi.Mharp_720s.5.20100501_210000_TAI.bitmap.fits 1
+sum: 1
+now: 1
+len1 /media/akito/Data/Mharp/bitmap/2010/201005/hmi.Mharp_720s.5.20100501_220000_TAI.bitmap.fits 1
+sum: 1
+now: 1
+len1 /media/akito/Data/Mharp/bitmap/2010/201005/hmi.Mharp_720s.5.20100501_230000_TAI.bitmap.fits 1
+sum: 1
+now: 0
+sum: 2
+now: 1
+len1 /media/akito/Data/Mharp/bitmap/2010/201005/hmi.Mharp_720s.6.20100501_010000_TAI.bitmap.fits 1
+sum: 2
+now: 1
+len1 /media/akito/Data/Mharp/bitmap/2010/201005/hmi.Mharp_720s.6.20100501_020000_TAI.bitmap.fits 1
+sum: 1
+now: 1
+len1 /media/akito/Data/Mharp/bitmap/2010/201005/hmi.Mharp_720s.6.20100501_030000_TAI.bitmap.fits 1
+sum: 2
+now: 1
+len1 /media/akito/Data/Mharp/bitmap/2010/201005/hmi.Mharp_720s.6.20100501_040000_TAI.bitmap.fits 1
+sum: 2
+now: 1
+len1 /media/akito/Data/Mharp/bitmap/2010/201005/hmi.Mharp_720s.6.20100501_050000_TAI.bitmap.fits 1
+sum: 2
+now: 1
+len1 /media/akito/Data/Mharp/bitmap/2010/201005/hmi.Mharp_720s.6.20100501_060000_TAI.bitmap.fits 1
+sum: 2
+now: 1
+len1 /media/akito/Data/Mharp/bitmap/2010/201005/hmi.Mharp_720s.6.20100501_070000_TAI.bitmap.fits 1
+sum: 2
+now: 1
+len1 /media/akito/Data/Mharp/bitmap/2010/201005/hmi.Mharp_720s.6.20100501_080000_TAI.bitmap.fits 1
+sum: 2
+now: 1
+len1 /media/akito/Data/Mharp/bitmap/2010/201005/hmi.Mharp_720s.6.20100501_090000_TAI.bitmap.fits 1
+sum: 2
+now: 1
+len1 /media/akito/Data/Mharp/bitmap/2010/201005/hmi.Mharp_720s.6.20100501_100000_TAI.bitmap.fits 1
+sum: 2
+now: 1
+len1 /media/akito/Data/Mharp/bitmap/2010/201005/hmi.Mharp_720s.6.20100501_110000_TAI.bitmap.fits 1
+sum: 2
+now: 1
+len1 /media/akito/Data/Mharp/bitmap/2010/201005/hmi.Mharp_720s.6.20100501_120000_TAI.bitmap.fits 1
+sum: 2
+now: 1
+len1 /media/akito/Data/Mharp/bitmap/2010/201005/hmi.Mharp_720s.6.20100501_130000_TAI.bitmap.fits 1
+sum: 2
+now: 1
+len1 /media/akito/Data/Mharp/bitmap/2010/201005/hmi.Mharp_720s.6.20100501_140000_TAI.bitmap.fits 1
+sum: 2
+now: 1
+len1 /media/akito/Data/Mharp/bitmap/2010/201005/hmi.Mharp_720s.6.20100501_150000_TAI.bitmap.fits 1
+sum: 3
+now: 1
+len1 /media/akito/Data/Mharp/bitmap/2010/201005/hmi.Mharp_720s.6.20100501_160000_TAI.bitmap.fits 1
+sum: 3
+now: 1
+len1 /media/akito/Data/Mharp/bitmap/2010/201005/hmi.Mharp_720s.6.20100501_170000_TAI.bitmap.fits 1
+sum: 3
+now: 1
+len1 /media/akito/Data/Mharp/bitmap/2010/201005/hmi.Mharp_720s.6.20100501_180000_TAI.bitmap.fits 1
+sum: 2
+now: 1
+len1 /media/akito/Data/Mharp/bitmap/2010/201005/hmi.Mharp_720s.6.20100501_190000_TAI.bitmap.fits 1
+sum: 2
+now: 1
+len1 /media/akito/Data/Mharp/bitmap/2010/201005/hmi.Mharp_720s.6.20100501_200000_TAI.bitmap.fits 1
+sum: 2
+now: 1
+len1 /media/akito/Data/Mharp/bitmap/2010/201005/hmi.Mharp_720s.6.20100501_210000_TAI.bitmap.fits 1
+sum: 2
+now: 0
+sum: 1
+now: 0
+sum: 1
+now: 0
+sum: 3
+now: 0
+sum: 3
+now: 0
+sum: 3
+now: 0
+sum: 2
+now: 0
+sum: 2
+now: 0
+sum: 2
+now: 0
+sum: 2
+now: 0
+sum: 1
+now: 0
+sum: 1

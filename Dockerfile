@@ -5,8 +5,7 @@ RUN apt-get update && \
     libglib2.0-0 \
     libsm6 \
     libxrender1 \
-    libxext6 \
-    libgl1-mesa-dev &&\
+    libxext6 &&\
     apt-get update &&\
     apt-get install -y git &&\
     apt-get install -y --allow-unauthenticated graphviz &&\
@@ -16,6 +15,5 @@ RUN curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py && \
     python3 get-pip.py
 COPY requirements.txt ${PWD}
 RUN pip3 install -r requirements.txt
-RUN pip3 install pycocotools
 ENV NVIDIA_VISIBLE_DEVICES all
 ENV NVIDIA_DRIVER_CAPABILITIES all

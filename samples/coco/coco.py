@@ -48,7 +48,7 @@ import urllib.request
 import shutil
 warnings.simplefilter('ignore')
 # Root directory of the project
-ROOT_DIR = os.path.abspath("/home/maskr-cnn")
+ROOT_DIR = os.path.abspath("/tf/maskr-cnn/Mask_RCNN-master")
 print(ROOT_DIR)
 sys.path.append(ROOT_DIR)
 # Import Mask RCNN

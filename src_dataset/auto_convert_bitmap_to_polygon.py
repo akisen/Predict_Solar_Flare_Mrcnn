@@ -2,7 +2,7 @@ import subprocess
 import datetime
 from dateutil.relativedelta import relativedelta
 from tqdm import tqdm
-years = [2013+i for i in range(7)]
+years = [2010+i for i in range(10)]
 months =[i+1 for i in range(12)]
 with tqdm(total = len(years) * len(months)-4) as pbar:
     for year in years:
