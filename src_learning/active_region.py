@@ -1,6 +1,6 @@
 """
 Mask R-CNN学習用スクリプト
-ex)python3 active_region.py train --dataset /home/jovyan/dataset/dataset/HMI_REGION/ --model imagenet
+ex)python3 active_region.py train --dataset /home/Dataset --model imagenet
 """
 
 import os
@@ -37,10 +37,12 @@ class SunConfig(Config):
 
 class SunDataset(utils.Dataset):
     def load_coco(self, dataset_dir, return_coco=False):
-        coco = COCO("{}/dataset_201005_201104.json".format(dataset_dir))
+        coco = COCO("{}/dataset.json".format(dataset_dir))
         image_dir = "{}/figures".format(dataset_dir)
+        class_ids = sorted(coco.getCatIds())
+        print(class_ids)
         image_ids = list(coco.imgs.keys())
-        print(image_ids)
+        # print(image_ids)
         if return_coco:
             return coco
 
