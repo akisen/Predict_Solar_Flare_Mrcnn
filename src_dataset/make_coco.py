@@ -28,7 +28,7 @@ def images(paths):
         filename =path.split("/")[-1]
         datetime = filename.split(".")[2]
         tmp["id"] = datetime[0:15]
-        tmp ["file_name"] = datetime[0:15]+".png"
+        tmp ["file_name"] = datetime[0:15]+".jpg"
         tmp["width"] = 4096
         tmp["height"] = 4096
         tmp["date_captured"] = map.meta['t_rec'][:-4]

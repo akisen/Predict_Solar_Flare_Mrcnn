@@ -10,5 +10,5 @@ samples/sun/*
 *.json
 *.pyc
 *.jpg
-src_dataset/__pycache__/
+src_dataset/__pycache__/*
 wget-log*
