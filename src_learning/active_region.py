@@ -140,3 +140,11 @@ if __name__ == '__main__':
         # Image Augmentation
         # Right/Left flip 50% of the time
         augmentation = imgaug.augmenters.Fliplr(0.5)
+
+                # Training - Stage 1
+        print("Training network heads")
+        model.train(dataset_train, dataset_val,
+                    learning_rate=config.LEARNING_RATE,
+                    epochs=40,
+                    layers='heads',
+                    augmentation=augmentation)
