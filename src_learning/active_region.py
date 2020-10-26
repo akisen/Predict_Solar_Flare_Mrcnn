@@ -36,13 +36,26 @@ class SunConfig(Config):
 
 
 class SunDataset(utils.Dataset):
-    def load_coco(self, dataset_dir, return_coco=False):
+    def load_coco(self, dataset_dir, subset=None,return_coco=False):
         coco = COCO("{}/dataset.json".format(dataset_dir))
-        image_dir = "{}/figures".format(dataset_dir)
+        if not subset:
+            image_dir = "{}/figures/".format(dataset_dir)
+        else:
+            image_dir = "{}/val_figures/".format(dataset_dir)
         class_ids = sorted(coco.getCatIds())
-        print(class_ids)
+        # print(class_ids)
         image_ids = list(coco.imgs.keys())
         # print(image_ids)
+        for i in class_ids:
+            self.add_class("coco", i, coco.loadCats(i)[0]["name"])
+        for i in image_ids:
+            self.add_image(
+                "coco", image_id=i,
+                path=os.path.join(image_dir, coco.imgs[i]['file_name']),
+                width=coco.imgs[i]["width"],
+                height=coco.imgs[i]["height"],
+                annotations=coco.loadAnns(coco.getAnnIds(
+                    imgIds=[i], catIds=class_ids, iscrowd=None)))
         if return_coco:
             return coco
 
@@ -86,7 +99,8 @@ if __name__ == '__main__':
             DETECTION_MIN_CONFIDENCE = 0
         config = InferenceConfig()
     config.display()
-        # Create model
+
+     # Create model
     if args.command == "train":
         model = modellib.MaskRCNN(mode="training", config=config,
                                   model_dir=args.logs)
@@ -110,9 +124,19 @@ if __name__ == '__main__':
     print("Loading weights ", model_path)
     model.load_weights(model_path, by_name=True)
     print("model load completed")
+
     if args.command == "train":
         # Training dataset. Use the training set and 35K from the
         # validation set, as as in the Mask RCNN paper.
         dataset_train = SunDataset()
         dataset_train.load_coco(args.dataset)
-        pass
+        dataset_train.prepare()
+
+        # Validation dataset
+        dataset_val = SunDataset()
+        dataset_val.load_coco(args.dataset,"val" )
+        dataset_val.prepare()
+
+        # Image Augmentation
+        # Right/Left flip 50% of the time
+        augmentation = imgaug.augmenters.Fliplr(0.5)
