@@ -72,16 +72,16 @@ def make_annotation_line(line,tmp):
     return tmps
 
 def categories():
-  tmps = []
-  sup = ["qr", "ar"]
-  cat = ["QR", "AR"]
-  for i in range(2):
-    tmp = cl.OrderedDict()
-    tmp["id"] = str(i)
-    tmp["supercategory"] = sup[i]
-    tmp["name"] = cat[i]
-    tmps.append(tmp)
-  return tmps
+    tmps = []
+    sup = ["qr", "ar"]
+    cat = ["QR", "AR"]
+    for i in range(2):
+        tmp = cl.OrderedDict()
+        tmp["id"] = str(i)
+        tmp["supercategory"] = sup[i]
+        tmp["name"] = cat[i]
+        tmps.append(tmp)
+    return tmps
 
 def main():
     parser = argparse.ArgumentParser()
