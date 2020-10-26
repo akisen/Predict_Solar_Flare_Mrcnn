@@ -11,3 +11,5 @@ samples/sun/*
 *.pyc
 *.fits
 wget-log*
+*.jpg
+*.zip
