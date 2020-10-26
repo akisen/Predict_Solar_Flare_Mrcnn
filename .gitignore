@@ -9,5 +9,6 @@ samples/sun/*
 *.png
 *.json
 *.pyc
-
+*.jpg
 src_dataset/__pycache__/
+wget-log*

@@ -71,6 +71,18 @@ def make_annotation_line(line,tmp):
             pass
     return tmps
 
+def categories():
+  tmps = []
+  sup = ["qr", "ar"]
+  cat = ["QR", "AR"]
+  for i in range(2):
+    tmp = cl.OrderedDict()
+    tmp["id"] = str(i)
+    tmp["supercategory"] = sup[i]
+    tmp["name"] = cat[i]
+    tmps.append(tmp)
+  return tmps
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("image_path",help="input image file path.")
@@ -78,7 +90,7 @@ def main():
     args = parser.parse_args()
     image_paths = args.image_path
     pickle_path = args.pickle_path
-    query_list = ["info","images","annotations"]
+    query_list = ["info","images","annotations","categories"]
     js = cl.OrderedDict()
     for i in range (len(query_list)):
         tmp = ""
@@ -86,8 +98,10 @@ def main():
             tmp =info()
         elif query_list[i] == "images":
             tmp = images(image_paths)
-        else:
+        elif query_list[i] == "annotations":
             tmp = annotations(pickle_path)
+        else:
+            tmp = categories()
         js[query_list[i]] = tmp
     utils.pickle_dump(js,"../coco_pickles/{}.pickle".format(pickle_path[-21:-15]))
     # fw = open("datasets.json","w")
