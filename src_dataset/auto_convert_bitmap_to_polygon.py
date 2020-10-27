@@ -10,7 +10,7 @@ with tqdm(total = len(years) * len(months)-4) as pbar:
             if(year==2010 and month<5):
                 continue
             else:
-                command = 'python3 convert_bitmap_polygon.py "/media/akito/Data21/hmi.Mharp_720s/{0}/{0}{1}/*.fits" "/media/akito/Data/SWAN_Flare/dataverse_files/SWAN/*/*"'.format(year, str(month).zfill(2))
+                command = 'python3 convert_bitmap_polygon.py "/media/akito/Data21/hmi.Mharp_720s/{0}/{0}{1}/*.fits" "/media/akito/Data1/SWAN_Flare/dataverse_files/SWAN/*/*"'.format(year, str(month).zfill(2))
                 print(command)
                 pbar.update(1)
                 subprocess.run(command, shell=True)
