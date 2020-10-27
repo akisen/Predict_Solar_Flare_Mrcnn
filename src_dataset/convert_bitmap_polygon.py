@@ -130,22 +130,22 @@ def initialize_df (start,end):
 def add_flare_label(coord_df,flare_df,rec_datetime):
     with open("../logs/{}{}.txt".format(rec_datetime.year,str(rec_datetime.month).zfill(2)),mode="a") as f:
         if (flare_occered_24hr(flare_df,rec_datetime,"C")):
-            label = flare_df.loc[rec_datetime]["CFLARE_LABEL_LOC"]
-            tqdm.write(label)
+            label = flare_occered_24hr(flare_df,rec_datetime,"C")
+            tqdm.write("label:{}".format(label))
             coord_df.loc[rec_datetime]["C_FLARE"].append(label)
             f.write("{}:{}\n".format(rec_datetime,label))
         else:
             coord_df.loc[rec_datetime]["C_FLARE"].append(0)
         if (flare_occered_24hr(flare_df,rec_datetime,"M")):
-            label = flare_df.loc[rec_datetime]["MFLARE_LABEL_LOC"]
-            tqdm.write(label)
+            label = flare_occered_24hr(flare_df,rec_datetime,"M")
+            tqdm.write("label:{}".format(label))
             coord_df.loc[rec_datetime]["M_FLARE"].append(label)
             f.write("{}:{}\n".format(rec_datetime,label))
         else:
             coord_df.loc[rec_datetime]["M_FLARE"].append(0)
         if (flare_occered_24hr(flare_df,rec_datetime,"X")):
-            label = flare_df.loc[rec_datetime]["XFLARE_LABEL_LOC"]
-            tqdm.write(label)
+            label = flare_occered_24hr(flare_df,rec_datetime,"X")
+            tqdm.write("label:{}".format(label))
             coord_df.loc[rec_datetime]["X_FLARE"].append(label)
             f.write("{}:{}\n".format(rec_datetime,label))
         else:
@@ -157,8 +157,9 @@ def flare_occered_24hr(flare_df,rec_datetime,flare_cls):
         if (rec_datetime in flare_df.index):
             # tqdm.write(flare_df.loc[rec_datetime]["{}FLARE_LABEL_LOC".format(flare_cls)])
             if (flare_df.loc[rec_datetime]["{}FLARE_LABEL_LOC".format(flare_cls)]!="None"):
-                tqdm.write("{}".format(rec_datetime))
-                return True
+                # tqdm.write("in method:{}".format(rec_datetime))
+                # rec_datetime = rec_datetime + relativedelta(hours=1)
+                return flare_df.loc[rec_datetime]["{}FLARE_LABEL_LOC".format(flare_cls)]
                 break
             else:
                 rec_datetime = rec_datetime + relativedelta(hours=1)

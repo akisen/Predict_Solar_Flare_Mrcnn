@@ -11,9 +11,9 @@
             "program": "${file}",
             "console": "integratedTerminal",
             "args": [
-                "'/media/akito/Data21/hmi.Mharp_720s/2010/201005/hmi.Mharp_720s.*.2010050*_TAI.bitmap.fits'",
-                "'/media/akito/Data/SWAN_Flare/dataverse_files/SWAN/*/*'"
-            ]
+                "/media/akito/Data21/hmi.Mharp_720s/2010/201006/hmi.Mharp_720s.51.20100613_070000_TAI.bitmap.fits",
+                "/media/akito/Data1/SWAN_Flare/dataverse_files/SWAN/partition1/51.csv"
+            ],
         }
     ]
 }

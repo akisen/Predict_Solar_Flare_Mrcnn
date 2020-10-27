@@ -10,7 +10,7 @@ with tqdm(total = len(years) * len(months)-4) as pbar:
             if(year==2010 and month<5):
                 continue
             else:
-                command = 'python3 make_coco.py "/media/akito/Data/HMI_REGION/{0}/{0}{1}/*fits" "../coord_dfs/{0}{1}coord_df.pickle"'.format(year, str(month).zfill(2))
+                command = 'python3 make_coco.py "/media/akito/Data1/HMI_REGION/{0}/{0}{1}/*fits" "../coord_dfs/{0}{1}coord_df.pickle"'.format(year, str(month).zfill(2))
                 print(command)
                 pbar.update(1)
                 subprocess.run(command, shell=True)
