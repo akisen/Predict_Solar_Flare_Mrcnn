@@ -27,7 +27,7 @@ def images(paths):
         map = sunpy.map.Map(path)
         filename =path.split("/")[-1]
         datetime = filename.split(".")[2]
-        tmp["id"] = datetime[0:15]
+        tmp["id"] = datetime[2:8]+datetime[9:11]
         tmp ["file_name"] = datetime[0:15]+".jpg"
         tmp["width"] = 4096
         tmp["height"] = 4096
@@ -47,15 +47,15 @@ def annotations(pickle_path):
 def make_annotation_line(line,tmp):
     tmps = []
     for i in range(len(line["Polygon"])):
-        print(line["C_FLARE"])
         tmp = cl.OrderedDict()
         polygon = Polygon(line["Polygon"][i])
         tmp["segmentation"] = list(itertools.chain.from_iterable(line["Polygon"][i]))
         tmp["area"] = polygon.area
         tmp["is_crowd"] = 0
-        image_id = line.name.strftime("%Y%m%d_%H%M%S")
+        image_id = line.name.strftime("%Y%m%d%H%M%S")
+        image_id = image_id[2:10]
         tmp["image_id"] = image_id
-        tmp["id"] = ("{}_{}".format(image_id,i+1))
+        tmp["id"] = ("{}{}".format(image_id,i+1))
         bb_coord = polygon.bounds
         bbox = [bb_coord[0],bb_coord[1],bb_coord[2]-bb_coord[0],bb_coord[3]-bb_coord[1]]
         tmp["bbox"] = bbox
@@ -103,6 +103,8 @@ def main():
         else:
             tmp = categories()
         js[query_list[i]] = tmp
+        print("images:{}".format(js["images"][0]))
+        print("annotations:{}".format(js["annotations"][0]))
     utils.pickle_dump(js,"../coco_pickles/{}.pickle".format(pickle_path[-21:-15]))
     # fw = open("datasets.json","w")
     # json.dump(js,fw,indent=2)
