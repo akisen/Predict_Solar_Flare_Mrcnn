@@ -21,19 +21,20 @@ def info():
 
 def images(paths):
     paths = glob.glob(paths)
+    print("images:{}".format(paths))
     tmps =[]
     for path in tqdm(paths,desc="image"):
         tmp = cl.OrderedDict()
         map = sunpy.map.Map(path)
         filename =path.split("/")[-1]
         datetime = filename.split(".")[2]
-        tmp["id"] = datetime[0:15]
-        tmp ["file_name"] = datetime[0:15]+".png"
-        tmp["width"] = 4102
-        tmp["height"] = 4102
+        tmp ["file_name"] = datetime[0:15]+".jpg"
+        tmp["height"] = 4096
+        tmp["width"] = 4096
         tmp["date_captured"] = map.meta['t_rec'][:-4]
+        tmp["id"] = datetime[2:8]+datetime[9:11]
         tmps.append(tmp)
-        tqdm.write(str(tmp))
+        # tqdm.write(str(tmp))
     return tmps
 
 def annotations(pickle_path):
@@ -41,30 +42,43 @@ def annotations(pickle_path):
     coord_df = pd.read_pickle(pickle_path)
     coord_df = coord_df.apply(make_annotation_line,tmp=tmps,axis=1)
     # annotations = [annotation for annotation in series for series in coord_df]
-    annotations = [coord_df.iloc[i][j] for i in range(len(coord_df)) for j in range(len(coord_df[i]) )]
-    print(len(annotations))
+    annotations = [coord_df.iloc[i][j]for i in range(len(coord_df)) for j in range(len(coord_df[i]) )]
     return annotations
 
 def make_annotation_line(line,tmp):
     tmps = []
-    for i in tqdm(range(len(line["Polygon"])),desc="Annotation"):
+    for i in range(len(line["Polygon"])):
         tmp = cl.OrderedDict()
         polygon = Polygon(line["Polygon"][i])
-        tmp["segmentation"] = list(itertools.chain.from_iterable(line["Polygon"][i]))
+        tmp["segmentation"] = [list(itertools.chain.from_iterable(line["Polygon"][i]))]
         tmp["area"] = polygon.area
-        tmp["is_crowd"] = 0
-        image_id = line.name.strftime("%Y%m%d_%H%M%S")
+        tmp["iscrowd"] = 0
+        image_id = line.name.strftime("%Y%m%d%H%M%S")
+        image_id = image_id[2:10]
         tmp["image_id"] = image_id
-        tmp["id"] = ("{}_{}".format(image_id,i+1))
+        tmp["id"] = ("{}{}".format(image_id,i+1))
         bb_coord = polygon.bounds
         bbox = [bb_coord[0],bb_coord[1],bb_coord[2]-bb_coord[0],bb_coord[3]-bb_coord[1]]
         tmp["bbox"] = bbox
-        # print(tmp["image_id"],tmp["id"])
-        # print(line)
-        if(line["C_FLARE"][i]!=0 or line["M_FLARE"][i]!=0 or line["M_FLARE"][i]!=0 ):
-            tmp["category_id"] = 1
-        else:
-            tmp["category_id"] = 0
+        try:
+            if(line["C_FLARE"][i]!=0 or line["M_FLARE"][i]!=0 or line["M_FLARE"][i]!=0 ):
+                tmp["category_id"] = 2
+            else:
+                tmp["category_id"] = 1
+            tmps.append(tmp)
+        except:
+            pass
+    return tmps
+
+def categories():
+    tmps = []
+    sup = ["qr", "ar"]
+    cat = ["QR", "AR"]
+    for i in range(2):
+        tmp = cl.OrderedDict()
+        tmp["supercategory"] = sup[i]
+        tmp["id"] = str(i+1)
+        tmp["name"] = cat[i]
         tmps.append(tmp)
     return tmps
 
@@ -75,7 +89,7 @@ def main():
     args = parser.parse_args()
     image_paths = args.image_path
     pickle_path = args.pickle_path
-    query_list = ["info","images","annotations"]
+    query_list = ["info","images","annotations","categories"]
     js = cl.OrderedDict()
     for i in range (len(query_list)):
         tmp = ""
@@ -83,11 +97,15 @@ def main():
             tmp =info()
         elif query_list[i] == "images":
             tmp = images(image_paths)
-        else:
+        elif query_list[i] == "annotations":
             tmp = annotations(pickle_path)
+        else:
+            tmp = categories()
         js[query_list[i]] = tmp
+        # print("images:{}".format(js["images"][0]))
     utils.pickle_dump(js,"../coco_pickles/{}.pickle".format(pickle_path[-21:-15]))
-    # fw = open("datasets.json","w")
+    # fw = open("201005datasets.json","w")
     # json.dump(js,fw,indent=2)
+
 if __name__ == "__main__":
     main()

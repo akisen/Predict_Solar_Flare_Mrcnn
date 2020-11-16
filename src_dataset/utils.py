@@ -27,14 +27,18 @@ def show_polygon(polygon):
     ax.add_patch(p)
     plt.show()
 
-def show_polygons_map(polygons,map,save_path,save=True):
+def show_polygons_map(polygons,map,save_path,is_flared,save=True):
     fig = plt.figure(1)
     ax = plt.subplot(1,1,1)
+    plt.title(map.meta["T_OBS"],fontsize = 10)
     plt.xlim(0,4000)
     ax.set_ylim([0,4000])
     ax.imshow(map.data)
-    for polygon in polygons:
-        p = pat.Polygon(polygon)
+    for i,polygon in enumerate(polygons):
+        if is_flared[i]==True:
+            p = pat.Polygon(polygon,color="red")
+        else:
+            p = pat.Polygon(polygon,color="cyan")
         ax.add_patch(p)
     fig.savefig(save_path)
     plt.clf()

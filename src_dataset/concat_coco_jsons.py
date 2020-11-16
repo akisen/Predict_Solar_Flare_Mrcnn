@@ -6,6 +6,7 @@ import utils
 import glob
 import collections as cl
 from make_coco import info
+from make_coco import categories
 from tqdm import tqdm
 parser = argparse.ArgumentParser()
 
@@ -18,14 +19,15 @@ output_path = args.output_path
 
 def main ():
     js = cl.OrderedDict()
+    js["info"] = info()
     js["images"] = []
     js["annotations"] = []
-    js["info"] = info()
+    js["categories"] = categories()
     for input_path in tqdm(input_paths):
         tmp = utils.pickle_load(input_path)
         js["images"].extend(tmp["images"])
         js["annotations"].extend(tmp["annotations"])
     with open(output_path,"w") as f:
-        json.dump(js,f,indent=2)
+        json.dump(js,f)
 
 main()
