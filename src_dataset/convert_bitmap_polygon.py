@@ -20,6 +20,8 @@ import utils
 import pickle
 from tqdm import tqdm
 from dateutil.relativedelta import relativedelta
+from shapely.geometry import Polygon
+from shapely.wkt import loads as load_wkt
 FULL_DISK_COORD = 4096
 
 parser = argparse.ArgumentParser()
@@ -40,42 +42,42 @@ def main():
     for mask_path in tqdm(mask_paths,desc ="{}-{}".format(start,end)):
         mask_map = sunpy.map.Map(mask_path)
         ar_num=mask_path.split(".")[-4]
-        try:
-            flare_df = pd.read_table(flare_df_paths_dic[str(ar_num)])
-            flare_df["Timestamp"] = pd.to_datetime(flare_df["Timestamp"])
-            flare_df.set_index("Timestamp",inplace = True)
-            rec_datetime = dt.strptime(mask_map.meta["t_rec"][:-4],"%Y.%m.%d_%H:%M:%S")
-            # print(flare_df.loc[rec_datetime])# 時間以上の精度で参照するときは.loc関数を使用する
-            mask_map = sunpy.map.Map(mask_path)
-            padded_mask_map = padding_mask(mask_map)
-            if (padded_mask_map.shape == (0,0)):
-                # tqdm.write("error : continue")
-                # tqdm.write(mask_path)
-                continue
-            rotated_padded_mask_map = rotate_map(mask_map, padded_mask_map)
-            ar_polygon = polygonize_map(mask_map, rotated_padded_mask_map)
-            # 一つのSHARPデータの中に複数のPolygonが入っていた場合を考慮
-            if (len(ar_polygon)==1):
-                if(len(ar_polygon[0])!=2):
-                    coord_df.loc[rec_datetime]["Polygon"].append(ar_polygon[0])
-                    add_flare_label(coord_df,flare_df,rec_datetime)
-                else:
-                    coord_df.loc[rec_datetime]["Polygon"].append(ar_polygon)
-                    add_flare_label(coord_df,flare_df,rec_datetime)
-            elif(len(ar_polygon)==0):
-                pass
+        # try:
+        flare_df = pd.read_table(flare_df_paths_dic[str(ar_num)])
+        flare_df["Timestamp"] = pd.to_datetime(flare_df["Timestamp"])
+        flare_df.set_index("Timestamp",inplace = True)
+        rec_datetime = dt.strptime(mask_map.meta["t_rec"][:-4],"%Y.%m.%d_%H:%M:%S")
+        # print(flare_df.loc[rec_datetime])# 時間以上の精度で参照するときは.loc関数を使用する
+        mask_map = sunpy.map.Map(mask_path)
+        # padded_mask_map = padding_mask(mask_map)
+        # if (padded_mask_map.shape == (0,0)):
+        #     # tqdm.write("error : continue")
+        #     # tqdm.write(mask_path)
+        #     continue
+        # rotated_padded_mask_map = rotate_map(mask_map, padded_mask_map)
+        ar_polygon = polygonize_map(mask_map)
+        # 一つのSHARPデータの中に複数のPolygonが入っていた場合を考慮
+        if (len(ar_polygon)==1):
+            if(len(ar_polygon[0])!=2):
+                coord_df.loc[rec_datetime]["Polygon"].append(ar_polygon[0])
+                add_flare_label(coord_df,flare_df,rec_datetime)
             else:
-                for polygon in ar_polygon:
-                    if(len(polygon[0])!=2):
-                            coord_df.loc[rec_datetime]["Polygon"].append(polygon[0])
-                            add_flare_label(coord_df,flare_df,rec_datetime)
-                    else:
-                            coord_df.loc[rec_datetime]["Polygon"].append(polygon)
-                            add_flare_label(coord_df,flare_df,rec_datetime)
-        except KeyboardInterrupt:
-            sys.exit()
-        except:
-            tqdm.write("{}.csv is not exist".format(ar_num))
+                coord_df.loc[rec_datetime]["Polygon"].append(ar_polygon)
+                add_flare_label(coord_df,flare_df,rec_datetime)
+        elif(len(ar_polygon)==0):
+            pass
+        else:
+            for polygon in ar_polygon:
+                if(len(polygon[0])!=2):
+                        coord_df.loc[rec_datetime]["Polygon"].append(polygon[0])
+                        add_flare_label(coord_df,flare_df,rec_datetime)
+                else:
+                        coord_df.loc[rec_datetime]["Polygon"].append(polygon)
+                        add_flare_label(coord_df,flare_df,rec_datetime)
+        # except KeyboardInterrupt:
+        #         sys.exit()
+        # except:
+        #     tqdm.write("{}.csv is not exist".format(ar_num))
     coord_df.to_pickle("../coord_dfs/{}{}coord_df.pickle".format(start.year,str(start.month).zfill(2)))
 
     
@@ -105,21 +107,25 @@ def rotate_map(mask_map,padded_mask_map):
     rotated_padded_mask_map = np.flipud(rotated_padded_mask_map)
     return rotated_padded_mask_map
 
-def polygonize_map(mask_map,rotated_padded_mask_map):
-    mask_center = np.array([mask_map.reference_pixel[0].value,mask_map.reference_pixel[1].value])
-    mask_ll = mask_center-(mask_map.meta["naxis1"]//2,mask_map.meta["naxis2"]//2)
-    mask_ur = mask_center+(mask_map.meta["naxis1"]//2,mask_map.meta["naxis2"]//2)
-    left = int(FULL_DISK_COORD-mask_ur[0])
-    right = int(FULL_DISK_COORD-mask_ll[0])
-    lower = int(FULL_DISK_COORD-mask_ur[1])
-    upper = int(FULL_DISK_COORD-mask_ll[1])
-    rotated_ar_mask_map = rotated_padded_mask_map[lower:upper,left:right]
+def polygonize_map(mask_map):
+    binarized_mask_map=np.where((mask_map.data==33)|(mask_map.data==34),1,0)
+    ll_x = mask_map.meta["crpix1"]
+    ll_y = mask_map.meta["crpix2"]
     ar_polygons =[]
-    ar_polygon_gen = shapes(rotated_ar_mask_map.astype("int16"),mask=None,connectivity = 8)
-    for i,polygon in enumerate(ar_polygon_gen):
-        if(polygon[0]["coordinates"][0][0]!=(0.0,0.0)):
-            points = [(point[0]+left,point[1]+lower)for point in polygon[0]["coordinates"][0]]
-            ar_polygons.append(points)
+    ar_polygon_gen = shapes(binarized_mask_map.astype("int16"),mask=None,connectivity = 8)
+    for ar_polygon in ar_polygon_gen:
+        if(ar_polygon[0]["coordinates"][0][0]!=(0.0,0.0)):
+            poly = [[coord[0]+ll_x,coord[1]+ll_y] for coord in ar_polygon[0]["coordinates"][0]]
+            poly_txt = ["{} {}".format(coord[0]+ll_x,coord[1]+ll_y) for coord in ar_polygon[0]["coordinates"][0]]
+            poly_txt = ",".join(poly_txt)
+            poly_txt = "POLYGON(("+poly_txt+"))" # wktの入力Formatに調整
+            # polygon = Polygon(poly)
+            polygon_wkt = load_wkt(poly_txt)
+            centroid = polygon_wkt.centroid.wkt # 重心の導出
+            c_x = centroid.split(" ")[1][1:]
+            c_y = centroid.split(" ")[2][:-1]
+            poly = expand_polygon(poly,2, c_x, c_y)
+            ar_polygons.append(poly)
     return ar_polygons
 
 def initialize_df (start,end):
@@ -166,7 +172,18 @@ def flare_occered_24hr(flare_df,rec_datetime,flare_cls):
         else:
             return False
     return False
-            
+
+def expand_polygon (polygon,expand,c_x,c_y):
+    for point in polygon:
+        if point[0]< float(c_x):
+            point[0] -= expand
+        else:
+            point[0] += expand
+        if point[1] < float(c_y):
+            point[1] -= expand
+        else:
+            point[1] += expand
+    return polygon
 def pickle_dump(obj, path):
     with open(path, mode='wb') as f:
         pickle.dump(obj,f)
@@ -175,5 +192,6 @@ def pickle_load(path):
     with open(path, mode='rb') as f:
         data = pickle.load(f)
         return data
+
 
 main()
