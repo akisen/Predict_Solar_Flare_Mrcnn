@@ -1,4 +1,4 @@
 {
     "python.pythonPath": "/Users/komatsu/opt/anaconda3/envs/py3.8/bin/python",
-    "python.dataScience.jupyterServerURI": "local"
+    "jupyter.jupyterServerType": "local"
 }
