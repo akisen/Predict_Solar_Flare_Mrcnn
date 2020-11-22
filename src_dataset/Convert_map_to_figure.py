@@ -6,7 +6,7 @@ import sys
 import argparse
 from tqdm import tqdm
 import warnings
-
+import numpy as np
 warnings.simplefilter('ignore')
 parser = argparse.ArgumentParser()
 parser.add_argument("input_path")
@@ -24,4 +24,11 @@ for i, path in enumerate(tqdm(paths)):
     else:
         filename=str(args.output_path)+path.split(".")[2][0:15]+".jpg"
     map=sunpy.map.Map(path)
-    cv2.imwrite(filename,map.data)
+    data = np.where(map.data<-2000,-2000,map.data)
+    data = np.where(data>2000,2000,data)
+    data = data+2000
+    data = data/(4000/255)
+    data = np.nan_to_num(data)
+
+    print(data.min(),data.max())
+    cv2.imwrite(filename,data)

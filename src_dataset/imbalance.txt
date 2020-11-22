@@ -103,3 +103,6 @@
 201811:all_data:1104,flare_data:0 imbalance:0.0
 201812:all_data:2178,flare_data:0 imbalance:0.0
 201901:all_data:423,flare_data:0 imbalance:0.0
+201005:all_data:306,flare_data:0 imbalance:0.0
+201005:all_data:306,flare_data:0 imbalance:0.0
+201005:all_data:306,flare_data:0 imbalance:0.0
