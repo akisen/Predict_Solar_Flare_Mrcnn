@@ -48,7 +48,7 @@ def display_images(images, titles=None, cols=4, cmap=None, norm=None,
     i = 1
     for image, title in zip(images, titles):
         plt.subplot(rows, cols, i)
-        plt.title(title, fontsize=9)
+        # plt.title(title, fontsize=9)
         plt.axis('off')
         plt.imshow(image.astype(np.uint8), cmap=cmap,
                    norm=norm, interpolation=interpolation)
@@ -136,15 +136,15 @@ def display_instances(image, boxes, masks, class_ids, class_names,
             ax.add_patch(p)
 
         # Label
-        if not captions:
-            class_id = class_ids[i]
-            score = scores[i] if scores is not None else None
-            label = class_names[class_id]
-            caption = "{} {:.3f}".format(label, score) if score else label
-        else:
-            caption = captions[i]
-        ax.text(x1, y1 + 8, caption,
-                color='w', size=11, backgroundcolor="none")
+        # if not captions:
+        #     class_id = class_ids[i]
+        #     score = scores[i] if scores is not None else None
+        #     label = class_names[class_id]
+        #     caption = "{} {:.3f}".format(label, score) if score else label
+        # else:
+        #     caption = captions[i]
+        # ax.text(x1, y1 + 8, caption,
+        #         color='w', size=11, backgroundcolor="none")
 
         # Mask
         mask = masks[:, :, i]

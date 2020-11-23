@@ -12,3 +12,4 @@ samples/sun/*
 *.jpg
 src_dataset/__pycache__/
 wget-log*
+src_learning/.Job.swp
