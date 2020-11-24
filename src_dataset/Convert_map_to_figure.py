@@ -30,5 +30,5 @@ for i, path in enumerate(tqdm(paths)):
     data = data/(4000/255)
     data = np.nan_to_num(data)
 
-    print(data.min(),data.max())
+    # print(data.min(),data.max())
     cv2.imwrite(filename,data)
