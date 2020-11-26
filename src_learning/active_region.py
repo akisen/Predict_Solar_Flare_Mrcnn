@@ -184,10 +184,7 @@ def evaluate_coco(model, dataset, coco, eval_type="bbox", limit=0, image_ids=Non
         results.extend(image_results)
 
     # Load results. This modifies results with additional attributes.
-    try:
-        coco_results = coco.loadRes(results)
-    except:
-        pass
+    coco_results = coco.loadRes(results)
 
     # Evaluate
     cocoEval = COCOeval(coco, coco_results, eval_type)
@@ -283,27 +280,27 @@ if __name__ == '__main__':
         augmentation = imgaug.augmenters.Fliplr(0.5)
 
                 #Training - Stage 1
-        # print("Training network heads")
-        # model.train(dataset_train, dataset_val,
-        #             learning_rate=config.LEARNING_RATE,
-        #             epochs=40,
-        #             layers='heads',
-        #             augmentation=augmentation)
-        #         # Training - Stage 2
-        # #Finetune layers from ResNet stage 4 and up
-        # print("Fine tune Resnet stage 4 and up")
-        # model.train(dataset_train, dataset_val,
-        #             learning_rate=config.LEARNING_RATE,
-        #             epochs=120,
-        #             layers='4+',
-        #             augmentation=augmentation)
+        print("Training network heads")
+        model.train(dataset_train, dataset_val,
+                    learning_rate=config.LEARNING_RATE,
+                    epochs=22,
+                    layers='heads',
+                    augmentation=augmentation)
+                # Training - Stage 2
+        #Finetune layers from ResNet stage 4 and up
+        print("Fine tune Resnet stage 4 and up")
+        model.train(dataset_train, dataset_val,
+                    learning_rate=config.LEARNING_RATE,
+                    epochs=50,
+                    layers='4+',
+                    augmentation=augmentation)
 
         # Training - Stage 3
         # Fine tune all layers
         print("Fine tune all layers")
         model.train(dataset_train, dataset_val,
                     learning_rate=config.LEARNING_RATE / 10,
-                    epochs=10,
+                    epochs=90,
                     layers='all',
                     augmentation=augmentation)
     elif args.command == "evaluate":
@@ -312,5 +309,5 @@ if __name__ == '__main__':
         coco = dataset_val.load_coco(args.dataset,"val",return_coco=True)
         dataset_val.prepare()
         print("Running COCO evaluation on {} images.".format(args.limit))
-        evaluate_coco(model, dataset_val, coco, "bbox", limit=int(args.limit))
+        evaluate_coco(model, dataset_val, coco, "segm", limit=int(args.limit))
 

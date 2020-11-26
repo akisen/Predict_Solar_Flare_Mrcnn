@@ -88,5 +88,5 @@ def main():
     log("gt_class_id", gt_class_id)
     log("gt_bbox", gt_bbox)
     log("gt_mask", gt_mask)
-    plt.savefig("prediction_{}.png".format(info["id"]))
+    plt.savefig("../results/predictions/prediction_{}.png".format(info["id"]))
 main()
