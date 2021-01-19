@@ -78,7 +78,7 @@ def main():
                 sys.exit()
         except:
             tqdm.write("{}.csv is not exist".format(ar_num))
-    coord_df.to_pickle("../coord_dfs/{}{}coord_df.pickle".format(start.year,str(start.month).zfill(2)))
+    coord_df.to_pickle("../coord_dfs/8hr/{}{}coord_df.pickle".format(start.year,str(start.month).zfill(2)))
 
     
 
@@ -159,7 +159,7 @@ def add_flare_label(coord_df,flare_df,rec_datetime):
 
 
 def flare_occered_24hr(flare_df,rec_datetime,flare_cls):
-    for i in range(24):
+    for i in range(8):
         if (rec_datetime in flare_df.index):
             # tqdm.write(flare_df.loc[rec_datetime]["{}FLARE_LABEL_LOC".format(flare_cls)])
             if (flare_df.loc[rec_datetime]["{}FLARE_LABEL_LOC".format(flare_cls)]!="None"):
