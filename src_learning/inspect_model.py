@@ -56,9 +56,9 @@ def get_ax(rows=1, cols=1, size=16):
     return ax
 
 def main():
+    dir_name = MODEL_PATH.split("/")[-2]
     config = InferenceConfig()
     config.display()
-    # 
     dataset  = active_region.SunDataset()
     dataset.load_coco(SUN_DIR,"val")
     dataset.prepare()
@@ -88,5 +88,15 @@ def main():
     log("gt_class_id", gt_class_id)
     log("gt_bbox", gt_bbox)
     log("gt_mask", gt_mask)
-    plt.savefig("../results/predictions/prediction_{}.png".format(info["id"]))
+    if not os.path.exists("../results/predictions/{}".format(dir_name)):
+        os.makedirs("../results/predictions/{}".format(dir_name))
+    plt.savefig("../results/predictions/{}/image_{}.png".format(dir_name,info["id"]))
+    AP, precisions, recalls, overlaps = utils.compute_ap(gt_bbox, gt_class_id, gt_mask,
+                                          r['rois'], r['class_ids'], r['scores'], r['masks'])
+    visualize.plot_precision_recall(AP, precisions, recalls)
+    plt.savefig("../results/predictions/{}/recall_{}.png".format(dir_name,info["id"]))
+    visualize.plot_overlaps(gt_class_id, r['class_ids'], r['scores'],
+                        overlaps, dataset.class_names)
+    plt.savefig("../results/predictions/{}/confusion_{}.png".format(dir_name,info["id"]))
+
 main()

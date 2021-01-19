@@ -283,7 +283,7 @@ if __name__ == '__main__':
         print("Training network heads")
         model.train(dataset_train, dataset_val,
                     learning_rate=config.LEARNING_RATE,
-                    epochs=22,
+                    epochs=40,
                     layers='heads',
                     augmentation=augmentation)
                 # Training - Stage 2
@@ -291,7 +291,7 @@ if __name__ == '__main__':
         print("Fine tune Resnet stage 4 and up")
         model.train(dataset_train, dataset_val,
                     learning_rate=config.LEARNING_RATE,
-                    epochs=50,
+                    epochs=120,
                     layers='4+',
                     augmentation=augmentation)
 
@@ -300,7 +300,7 @@ if __name__ == '__main__':
         print("Fine tune all layers")
         model.train(dataset_train, dataset_val,
                     learning_rate=config.LEARNING_RATE / 10,
-                    epochs=90,
+                    epochs=160,
                     layers='all',
                     augmentation=augmentation)
     elif args.command == "evaluate":
@@ -309,5 +309,5 @@ if __name__ == '__main__':
         coco = dataset_val.load_coco(args.dataset,"val",return_coco=True)
         dataset_val.prepare()
         print("Running COCO evaluation on {} images.".format(args.limit))
-        evaluate_coco(model, dataset_val, coco, "segm", limit=int(args.limit))
+        evaluate_coco(model, dataset_val, coco, "bbox", limit=int(args.limit))
 

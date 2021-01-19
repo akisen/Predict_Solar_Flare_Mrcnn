@@ -136,15 +136,15 @@ def display_instances(image, boxes, masks, class_ids, class_names,
             ax.add_patch(p)
 
         # Label
-        # if not captions:
-        #     class_id = class_ids[i]
-        #     score = scores[i] if scores is not None else None
-        #     label = class_names[class_id]
-        #     caption = "{} {:.3f}".format(label, score) if score else label
-        # else:
-        #     caption = captions[i]
-        # ax.text(x1, y1 + 8, caption,
-        #         color='w', size=11, backgroundcolor="none")
+        if not captions:
+            class_id = class_ids[i]
+            score = scores[i] if scores is not None else None
+            label = class_names[class_id]
+            caption = "{} {:.3f}".format(label, score) if score else label
+        else:
+            caption = captions[i]
+        ax.text(x1, y1 + 8, caption,
+                color='w', size=11, backgroundcolor="none")
 
         # Mask
         mask = masks[:, :, i]
@@ -312,6 +312,8 @@ def plot_precision_recall(AP, precisions, recalls):
     # Plot the Precision-Recall curve
     _, ax = plt.subplots(1)
     ax.set_title("Precision-Recall Curve. AP@50 = {:.3f}".format(AP))
+    ax.set_xlabel("Recall")
+    ax.set_ylabel("Precision")
     ax.set_ylim(0, 1.1)
     ax.set_xlim(0, 1.1)
     _ = ax.plot(recalls, precisions)
