@@ -48,7 +48,7 @@ def display_images(images, titles=None, cols=4, cmap=None, norm=None,
     i = 1
     for image, title in zip(images, titles):
         plt.subplot(rows, cols, i)
-        plt.title(title, fontsize=9)
+        # plt.title(title, fontsize=9)
         plt.axis('off')
         plt.imshow(image.astype(np.uint8), cmap=cmap,
                    norm=norm, interpolation=interpolation)
@@ -312,6 +312,8 @@ def plot_precision_recall(AP, precisions, recalls):
     # Plot the Precision-Recall curve
     _, ax = plt.subplots(1)
     ax.set_title("Precision-Recall Curve. AP@50 = {:.3f}".format(AP))
+    ax.set_xlabel("Recall")
+    ax.set_ylabel("Precision")
     ax.set_ylim(0, 1.1)
     ax.set_xlim(0, 1.1)
     _ = ax.plot(recalls, precisions)

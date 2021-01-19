@@ -42,43 +42,38 @@ def main():
     for mask_path in tqdm(mask_paths,desc ="{}-{}".format(start,end)):
         mask_map = sunpy.map.Map(mask_path)
         ar_num=mask_path.split(".")[-4]
-        try:
-            flare_df = pd.read_table(flare_df_paths_dic[str(ar_num)])
-            flare_df["Timestamp"] = pd.to_datetime(flare_df["Timestamp"])
-            flare_df.set_index("Timestamp",inplace = True)
-            rec_datetime = dt.strptime(mask_map.meta["t_rec"][:-4],"%Y.%m.%d_%H:%M:%S")
-            # print(flare_df.loc[rec_datetime])# 時間以上の精度で参照するときは.loc関数を使用する
-            mask_map = sunpy.map.Map(mask_path)
-            # padded_mask_map = padding_mask(mask_map)
-            # if (padded_mask_map.shape == (0,0)):
-            #     # tqdm.write("error : continue")
-            #     # tqdm.write(mask_path)
-            #     continue
-            # rotated_padded_mask_map = rotate_map(mask_map, padded_mask_map)
-            ar_polygon = polygonize_map(mask_map)
-            # 一つのSHARPデータの中に複数のPolygonが入っていた場合を考慮
-            if (len(ar_polygon)==1):
-                if(len(ar_polygon[0])!=2):
-                    coord_df.loc[rec_datetime]["Polygon"].append(ar_polygon[0])
-                    add_flare_label(coord_df,flare_df,rec_datetime)
-                else:
-                    coord_df.loc[rec_datetime]["Polygon"].append(ar_polygon)
-                    add_flare_label(coord_df,flare_df,rec_datetime)
-            elif(len(ar_polygon)==0):
-                pass
+        flare_df = pd.read_table(flare_df_paths_dic[str(ar_num)])
+        flare_df["Timestamp"] = pd.to_datetime(flare_df["Timestamp"])
+        flare_df.set_index("Timestamp",inplace = True)
+        rec_datetime = dt.strptime(mask_map.meta["t_rec"][:-4],"%Y.%m.%d_%H:%M:%S")
+        # print(flare_df.loc[rec_datetime])# 時間以上の精度で参照するときは.loc関数を使用する
+        mask_map = sunpy.map.Map(mask_path)
+        padded_mask_map = padding_mask(mask_map)
+        if (padded_mask_map.shape == (0,0)):
+            tqdm.write("error : continue")
+            tqdm.write(mask_path)
+            continue
+        rotated_padded_mask_map = rotate_map(mask_map, padded_mask_map)
+        ar_polygon = polygonize_map(mask_map, rotated_padded_mask_map)
+        # 一つのSHARPデータの中に複数のPolygonが入っていた場合を考慮
+        if (len(ar_polygon)==1):
+            if(len(ar_polygon[0])!=2):
+                coord_df.loc[rec_datetime]["Polygon"].append(ar_polygon[0])
+                add_flare_label(coord_df,flare_df,rec_datetime)
             else:
-                for polygon in ar_polygon:
-                    if(len(polygon[0])!=2):
-                            coord_df.loc[rec_datetime]["Polygon"].append(polygon[0])
-                            add_flare_label(coord_df,flare_df,rec_datetime)
-                    else:
-                            coord_df.loc[rec_datetime]["Polygon"].append(polygon)
-                            add_flare_label(coord_df,flare_df,rec_datetime)
-        except KeyboardInterrupt:
-                sys.exit()
-        except:
-            tqdm.write("{}.csv is not exist".format(ar_num))
-    coord_df.to_pickle("../coord_dfs/8hr/{}{}coord_df.pickle".format(start.year,str(start.month).zfill(2)))
+                coord_df.loc[rec_datetime]["Polygon"].append(ar_polygon)
+                add_flare_label(coord_df,flare_df,rec_datetime)
+        elif(len(ar_polygon)==0):
+            pass
+        else:
+            for polygon in ar_polygon:
+                if(len(polygon[0])!=2):
+                        coord_df.loc[rec_datetime]["Polygon"].append(polygon[0])
+                        add_flare_label(coord_df,flare_df,rec_datetime)
+                else:
+                        coord_df.loc[rec_datetime]["Polygon"].append(polygon)
+                        add_flare_label(coord_df,flare_df,rec_datetime)
+    coord_df.to_pickle("../coord_dfs/{}{}coord_df.pickle".format(start.year,str(start.month).zfill(2)))
 
     
 
@@ -134,56 +129,30 @@ def initialize_df (start,end):
     return time_df
 
 def add_flare_label(coord_df,flare_df,rec_datetime):
+    rec_datetime = rec_datetime + relativedelta(hours=2)
     with open("../logs/{}{}.txt".format(rec_datetime.year,str(rec_datetime.month).zfill(2)),mode="a") as f:
-        if (flare_occered_24hr(flare_df,rec_datetime,"C")):
-            label = flare_occered_24hr(flare_df,rec_datetime,"C")
-            tqdm.write("label:{}".format(label))
+        if (flare_df.loc[rec_datetime]["CFLARE_LABEL_LOC"]!="None"):
+            label = flare_df.loc[rec_datetime]["CFLARE_LABEL_LOC"]
+            tqdm.write(label)
             coord_df.loc[rec_datetime]["C_FLARE"].append(label)
             f.write("{}:{}\n".format(rec_datetime,label))
         else:
             coord_df.loc[rec_datetime]["C_FLARE"].append(0)
-        if (flare_occered_24hr(flare_df,rec_datetime,"M")):
-            label = flare_occered_24hr(flare_df,rec_datetime,"M")
-            tqdm.write("label:{}".format(label))
+        if (flare_df.loc[rec_datetime]["MFLARE_LABEL_LOC"]!="None"):
+            label = flare_df.loc[rec_datetime]["MFLARE_LABEL_LOC"]
+            tqdm.write(label)
             coord_df.loc[rec_datetime]["M_FLARE"].append(label)
             f.write("{}:{}\n".format(rec_datetime,label))
         else:
             coord_df.loc[rec_datetime]["M_FLARE"].append(0)
-        if (flare_occered_24hr(flare_df,rec_datetime,"X")):
-            label = flare_occered_24hr(flare_df,rec_datetime,"X")
-            tqdm.write("label:{}".format(label))
+        if (flare_df.loc[rec_datetime]["XFLARE_LABEL_LOC"]!="None"):
+            label = flare_df.loc[rec_datetime]["XFLARE_LABEL_LOC"]
+            tqdm.write(label)
             coord_df.loc[rec_datetime]["X_FLARE"].append(label)
             f.write("{}:{}\n".format(rec_datetime,label))
         else:
             coord_df.loc[rec_datetime]["X_FLARE"].append(0)
 
-
-def flare_occered_24hr(flare_df,rec_datetime,flare_cls):
-    for i in range(8):
-        if (rec_datetime in flare_df.index):
-            # tqdm.write(flare_df.loc[rec_datetime]["{}FLARE_LABEL_LOC".format(flare_cls)])
-            if (flare_df.loc[rec_datetime]["{}FLARE_LABEL_LOC".format(flare_cls)]!="None"):
-                # tqdm.write("in method:{}".format(rec_datetime))
-                # rec_datetime = rec_datetime + relativedelta(hours=1)
-                return flare_df.loc[rec_datetime]["{}FLARE_LABEL_LOC".format(flare_cls)]
-                break
-            else:
-                rec_datetime = rec_datetime + relativedelta(hours=1)
-        else:
-            return False
-    return False
-
-def expand_polygon (polygon,expand,c_x,c_y):
-    for point in polygon:
-        if point[0]< float(c_x):
-            point[0] -= expand
-        else:
-            point[0] += expand
-        if point[1] < float(c_y):
-            point[1] -= expand
-        else:
-            point[1] += expand
-    return polygon
 def pickle_dump(obj, path):
     with open(path, mode='wb') as f:
         pickle.dump(obj,f)
