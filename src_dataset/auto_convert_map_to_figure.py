@@ -10,7 +10,7 @@ with tqdm(total = len(years) * len(months)-4) as pbar:
             if(year==2010 and month<5):
                 continue
             else:
-                command = 'python3 Convert_map_to_figure.py "/media/akito/Data5/HMI_REGION/{0}/{0}{1}/*fits" "/media/akito/Data5/HMI_REGION/train_figures/"'.format(year, str(month).zfill(2))
+                command = 'python3 Convert_map_to_figure.py "/media/akito/Data21/HMI.ME_720s_fd10/{0}/{0}{1}/" "/media/akito/Data21/HMI.ME_720s_fd10/figures/" --channel 3'.format(year, str(month).zfill(2))
                 print(command)
                 pbar.update(1)
                 subprocess.run(command, shell=True)

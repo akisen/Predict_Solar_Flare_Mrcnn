@@ -1,3 +1,14 @@
+"""
+Mask R−CNNの学習に使用する背景画像のデータセットを作成するスクリプト
+第1引数:インプットデータのディレクトリ
+第2引数:アウトプットデータのディレクトリ
+以下必要に応じて追加する引数
+format:出力ファイルの命名形式を指定(デフォルトは時間)
+channel:出力ファイルのチャネルを指定(デフォルトは1)
+ex)三成分を重ねたデータを背景画像として使用したい場合
+python3 Convert_map_to_figure.py "/media/akito/Data21/HMI.ME_720s_fd10/2010/201005/" "/media/akito/Data21/HMI.ME_720s_fd10/figures/" --channel 3
+"""
+
 from glob import glob
 import sunpy.map
 import cv2
