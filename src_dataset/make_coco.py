@@ -20,7 +20,6 @@ def info():
     return tmp
 
 def images(paths):
-    paths = glob.glob(paths)
     print("images:{}".format(paths))
     tmps =[]
     for path in tqdm(paths,desc="image"):
@@ -38,9 +37,8 @@ def images(paths):
         # tqdm.write(str(tmp))
     return tmps
 
-def annotations(pickle_path):
+def annotations(coord_df):
     tmps = []
-    coord_df = pd.read_pickle(pickle_path)
     coord_df = coord_df.apply(make_annotation_line,tmp=tmps,axis=1)
     # annotations = [annotation for annotation in series for series in coord_df]
     annotations = [coord_df.iloc[i][j] for i in range(len(coord_df)) for j in range(len(coord_df[i]) )]
@@ -72,39 +70,67 @@ def make_annotation_line(line,tmp):
     return tmps
 
 def categories():
-  tmps = []
-  sup = ["qr", "ar"]
-  cat = ["QR", "AR"]
-  for i in range(2):
-    tmp = cl.OrderedDict()
-    tmp["id"] = str(i)
-    tmp["supercategory"] = sup[i]
-    tmp["name"] = cat[i]
-    tmps.append(tmp)
-  return tmps
+    tmps = []
+    sup = ["qr", "ar"]
+    cat = ["QR", "AR"]
+    for i in range(2):
+        tmp = cl.OrderedDict()
+        tmp["id"] = str(i)
+        tmp["supercategory"] = sup[i]
+        tmp["name"] = cat[i]
+        tmps.append(tmp)
+    return tmps
 
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("image_path",help="input image file path.")
     parser.add_argument("pickle_path")
+    parser.add_argument("--mode",default="plane",help="plane or balance")
     args = parser.parse_args()
     image_paths = args.image_path
     pickle_path = args.pickle_path
+    mode = args.mode
     query_list = ["info","images","annotations","categories"]
     js = cl.OrderedDict()
-    for i in range (len(query_list)):
-        tmp = ""
-        if query_list[i] == "info":
-            tmp =info()
-        elif query_list[i] == "images":
-            tmp = images(image_paths)
-        elif query_list[i] == "annotations":
-            tmp = annotations(pickle_path)
-        else:
-            tmp = categories()
-        js[query_list[i]] = tmp
+    coord_df = pd.read_pickle(pickle_path)
+    if mode =="plane":
+        for i in range (len(query_list)):
+            tmp = ""
+            if query_list[i] == "info":
+                tmp =info()
+            elif query_list[i] == "images":
+                tmp = images(glob.glob(image_paths))
+            elif query_list[i] == "annotations":
+                tmp = annotations(coord_df)
+            else:
+                tmp = categories()
+            js[query_list[i]] = tmp
+    else:
+        balance_df = pd.DataFrame(index=[],columns =["Polygon","C_FLARE","M_FLARE","X_FLARE"])
+        for series in coord_df.iterrows():
+            if (all ([data == 0 for data in series[1]["C_FLARE"]+series[1]["M_FLARE"]+series[1]["X_FLARE"]])): # フレアが発生しているかどうか判定
+                pass
+            else:
+                series = pd.Series(series[1],index=balance_df.columns)
+                balance_df = balance_df.append(series)
+        # TODO:Pathlibで再実装
+        image_dir = ".".join(glob.glob(image_paths)[0].split(".")[:-4])
+        image_paths = [image_dir+"."+index.strftime("%Y%m%d_%H%M%S_TAI")+"."+".".join(glob.glob(image_paths)[0].split(".")[-3:]) for index in balance_df.index]
+        print(image_paths[0])
+        for i in range (len(query_list)):
+            tmp = ""
+            if query_list[i] == "info":
+                tmp =info()
+            elif query_list[i] == "images":
+                tmp = images(image_paths)
+            elif query_list[i] == "annotations":
+                tmp = annotations(balance_df)
+            else:
+                tmp = categories()
+            js[query_list[i]] = tmp
+
         # print("images:{}".format(js["images"][0]))
-    utils.pickle_dump(js,"../coco_pickles/{}.pickle".format(pickle_path[-21:-15]))
+    utils.pickle_dump(js,"../out/coco_pickles/{}.pickle".format(pickle_path[-21:-15]))
     # fw = open("201005datasets.json","w")
     # json.dump(js,fw,indent=2)
 
