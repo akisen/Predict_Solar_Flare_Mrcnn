@@ -1,6 +1,6 @@
 """
 bitmap形式のファイルを入力し、各時間ごとのPolygonのPickleファイルを出力するプログラム
-実行例:/opt/anaconda3/envs/py3.7/bin/python /Users/komatsu/Documents/Predict_Solar_Flare_Mrcnn/src_dataset/Convert_bitmap_polygon.py "/Users/komatsu/Documents/Predict_Solar_Flare_Mrcnn/samples/sun/Mharp/hmi.Mharp_720s.1.20100501_0*_TAI.bitmap.fits" --pickle_path "/Users/komatsu/Documents/Predict_Solar_Flare_Mrcnn/src_dataset/coord_df.pickle"
+実行例: 'python3 convert_bitmap_polygon.py "/media/akito/Data21/hmi.Mharp_720s/{0}/{0}{1}/*.fits" "/media/akito/Data5/SWAN_Flare/dataverse_files/SWAN/*/*"
 """
 
 import sunpy.map
@@ -27,6 +27,7 @@ FULL_DISK_COORD = 4096
 parser = argparse.ArgumentParser()
 parser.add_argument("input_mask_path")
 parser.add_argument("input_flare_table_path")
+parser.add_argument("output_path")
 args = parser.parse_args()
 def main():
     mask_paths_string = args.input_mask_path
@@ -54,7 +55,7 @@ def main():
             tqdm.write(mask_path)
             continue
         rotated_padded_mask_map = rotate_map(mask_map, padded_mask_map)
-        ar_polygon = polygonize_map(mask_map, rotated_padded_mask_map)
+        ar_polygon = polygonize_map(mask_map)
         # 一つのSHARPデータの中に複数のPolygonが入っていた場合を考慮
         if (len(ar_polygon)==1):
             if(len(ar_polygon[0])!=2):
@@ -73,7 +74,7 @@ def main():
                 else:
                         coord_df.loc[rec_datetime]["Polygon"].append(polygon)
                         add_flare_label(coord_df,flare_df,rec_datetime)
-    coord_df.to_pickle("../coord_dfs/{}{}coord_df.pickle".format(start.year,str(start.month).zfill(2)))
+    coord_df.to_pickle("{}/{}{}coord_df.pickle".format(args.output_path,start.year,str(start.month).zfill(2)))
 
     
 
@@ -123,36 +124,54 @@ def polygonize_map(mask_map):
             ar_polygons.append(poly)
     return ar_polygons
 
+def expand_polygon (polygon,expand,c_x,c_y):
+    for point in polygon:
+        if point[0]< float(c_x):
+            point[0] -= expand
+        else:
+            point[0] += expand
+        if point[1] < float(c_y):
+            point[1] -= expand
+        else:
+            point[1] += expand
+    return polygon
 def initialize_df (start,end):
     time_index = pd.date_range(start = start,end = end,freq ="H")
     time_df = pd.DataFrame([[[],[],[],[]] for i in range(len(time_index))],index = time_index,columns =["Polygon","C_FLARE","M_FLARE","X_FLARE"])
     return time_df
 
 def add_flare_label(coord_df,flare_df,rec_datetime):
-    rec_datetime = rec_datetime + relativedelta(hours=2)
+    rec_datetime = rec_datetime
     with open("../logs/{}{}.txt".format(rec_datetime.year,str(rec_datetime.month).zfill(2)),mode="a") as f:
-        if (flare_df.loc[rec_datetime]["CFLARE_LABEL_LOC"]!="None"):
-            label = flare_df.loc[rec_datetime]["CFLARE_LABEL_LOC"]
+        if (is_flared(rec_datetime,24,flare_df,"C")):
+            label = is_flared(rec_datetime,24,flare_df,"C")
             tqdm.write(label)
             coord_df.loc[rec_datetime]["C_FLARE"].append(label)
             f.write("{}:{}\n".format(rec_datetime,label))
         else:
             coord_df.loc[rec_datetime]["C_FLARE"].append(0)
-        if (flare_df.loc[rec_datetime]["MFLARE_LABEL_LOC"]!="None"):
-            label = flare_df.loc[rec_datetime]["MFLARE_LABEL_LOC"]
+        if (is_flared(rec_datetime,24,flare_df,"M")):
+            label = is_flared(rec_datetime,24,flare_df,"M")
             tqdm.write(label)
             coord_df.loc[rec_datetime]["M_FLARE"].append(label)
             f.write("{}:{}\n".format(rec_datetime,label))
         else:
             coord_df.loc[rec_datetime]["M_FLARE"].append(0)
-        if (flare_df.loc[rec_datetime]["XFLARE_LABEL_LOC"]!="None"):
-            label = flare_df.loc[rec_datetime]["XFLARE_LABEL_LOC"]
+        if (is_flared(rec_datetime,24,flare_df,"X")):
+            label = is_flared(rec_datetime,24,flare_df,"X")
             tqdm.write(label)
             coord_df.loc[rec_datetime]["X_FLARE"].append(label)
             f.write("{}:{}\n".format(rec_datetime,label))
         else:
             coord_df.loc[rec_datetime]["X_FLARE"].append(0)
-
+def is_flared (rec_datetime,span,flare_df,flare_class):
+    for _ in range (span):
+        rec_datetime = rec_datetime+ relativedelta(hours=1)
+        key = flare_class+"FLARE_LABEL_LOC"
+        if(rec_datetime in flare_df.index):
+            if(flare_df.loc[rec_datetime][key]!="None"):
+                return flare_df.loc[rec_datetime][key]
+    return False
 def pickle_dump(obj, path):
     with open(path, mode='wb') as f:
         pickle.dump(obj,f)

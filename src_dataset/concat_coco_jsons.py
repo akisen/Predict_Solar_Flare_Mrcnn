@@ -23,11 +23,16 @@ def main ():
     js["images"] = []
     js["annotations"] = []
     js["categories"] = categories()
+    file_count = 0
+    anno_count = 0
     for input_path in tqdm(input_paths):
         tmp = utils.pickle_load(input_path)
         js["images"].extend(tmp["images"])
+        file_count+=len((tmp["images"]))
         js["annotations"].extend(tmp["annotations"])
-    with open(output_path,"w") as f:
+        anno_count += len(tmp["annotations"])
+    with open( output_path , "w") as f:
         json.dump(js,f)
-
+    print("files"+str(file_count))
+    print("annotations"+str(anno_count))
 main()
