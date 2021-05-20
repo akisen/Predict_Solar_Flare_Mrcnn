@@ -43,9 +43,7 @@ def main():
     for mask_path in tqdm(mask_paths,desc ="{}-{}".format(start,end)):
         mask_map = sunpy.map.Map(mask_path)
         ar_num=mask_path.split(".")[-4]
-        flare_df = pd.read_table(flare_df_paths_dic[str(ar_num)])
-        flare_df["Timestamp"] = pd.to_datetime(flare_df["Timestamp"])
-        flare_df.set_index("Timestamp",inplace = True)
+        flare_df = pd.read_csv(flare_df_paths_dic[str(ar_num)],index_col=0)
         rec_datetime = dt.strptime(mask_map.meta["t_rec"][:-4],"%Y.%m.%d_%H:%M:%S")
         # print(flare_df.loc[rec_datetime])# 時間以上の精度で参照するときは.loc関数を使用する
         mask_map = sunpy.map.Map(mask_path)
