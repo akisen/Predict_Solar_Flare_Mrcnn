@@ -8,7 +8,7 @@ with tqdm(total=len(years) * len(months) - 4) as pbar:
             if(year == 2010 and month < 5):
                 continue
             else:
-                command = 'python3 make_coco.py "/media/akito/Data5/HMI_REGION/{0}/{0}{1}/*fits" "/media/akito/Data21/Experiments/resample(202105)/coord_dfs/24hr/{0}{1}coord_df.pickle" "/media/akito/Data21/Experiments/resample(202105)/unbalance_dataset/201005-201912/coco_pickles"  --mode plane'.format(
+                command = 'python3 make_coco.py "/media/akito/Data5/HMI_REGION/{0}/{0}{1}/*fits" "/media/akito/Data21/Experiments/resample(202105)/coord_dfs/24hr/{0}{1}coord_df.pickle" "/media/akito/Data21/Experiments/resample(202105)/balance_dataset/201005-201912/coco_pickles"  --mode balance'.format(
                     year, str(month).zfill(2))
                 tqdm.write(command)
                 pbar.update(1)

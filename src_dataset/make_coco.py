@@ -9,8 +9,10 @@ import pandas as pd
 import sunpy.map
 from shapely.geometry import Polygon
 from tqdm import tqdm
-
+from datetime import datetime as dt
 import utils
+
+data_end = dt(2011, 8, 1)
 
 
 def info():
@@ -24,20 +26,26 @@ def info():
 
 
 def images(paths):
+    data_end = dt(2011, 8, 1)
     tmps = []
     for path in tqdm(paths, desc="image"):
-        tmp = cl.OrderedDict()
+        filename = path.split("/")[-1]
+        datetime = filename.split(".")[2]
+        datetime_dt = dt.strptime(datetime, "%Y%m%d_%H%M%S_TAI")
         if (pathlib.Path(path).exists()):
-            map = sunpy.map.Map(path)
-            filename = path.split("/")[-1]
-            datetime = filename.split(".")[2]
-            tmp["id"] = datetime[0:15]
-            tmp["file_name"] = datetime[0:15] + ".jpg"
-            tmp["width"] = 4102
-            tmp["height"] = 4102
-            tmp["date_captured"] = map.meta['t_rec'][:-4]
-            tmp["id"] = datetime[2:8] + datetime[9:11]
-            tmps.append(tmp)
+            if datetime_dt >= data_end:
+                print("pass:{}".format(datetime_dt))
+                pass
+            else:
+                # map = sunpy.map.Map(path)
+                tmp = cl.OrderedDict()
+                tmp["id"] = datetime[0:15]
+                tmp["file_name"] = datetime[0:15] + ".jpg"
+                tmp["width"] = 4102
+                tmp["height"] = 4102
+                tmp["date_captured"] = datetime[0:15]
+                tmp["id"] = datetime[2:8] + datetime[9:11]
+                tmps.append(tmp)
         # tqdm.write(str(tmp))
     return tmps
 
@@ -53,6 +61,7 @@ def annotations(coord_df):
 
 def make_annotation_line(line, tmp):
     tmps = []
+
     for i in range(len(line["Polygon"])):
         tmp = cl.OrderedDict()
         polygon = Polygon(line["Polygon"][i])
@@ -60,6 +69,9 @@ def make_annotation_line(line, tmp):
             list(itertools.chain.from_iterable(line["Polygon"][i]))]
         tmp["area"] = polygon.area
         tmp["iscrowd"] = 0
+        if (line.name >= data_end):
+            print(line.name)
+            exit()
         image_id = line.name.strftime("%Y%m%d%H%M%S")
         image_id = image_id[2:10]
         tmp["image_id"] = image_id
@@ -73,22 +85,27 @@ def make_annotation_line(line, tmp):
         if(line["C_FLARE"][i] != 0 or line["M_FLARE"][i] != 0 or line["M_FLARE"][i] != 0):
             tmp["category_id"] = 1
         else:
-            tmp["category_id"] = 0
+            tmp["category_id"] = 1
         tmps.append(tmp)
     return tmps
 
 
 def categories():
     tmps = []
-    sup = ["non-flare", "flare"]
-    cat = ["non-flare", "flare"]
-    for i in range(2):
-        tmp = cl.OrderedDict()
-        tmp["id"] = str(i)
-        tmp["supercategory"] = sup[i]
-        tmp["name"] = cat[i]
-        tmps.append(tmp)
-    return tmps
+    # sup = ["non-flare", "flare"]
+    # cat = ["non-flare", "flare"]
+    # for i in range(2):
+    #     tmp = cl.OrderedDict()
+    #     tmp["id"] = str(i)
+    #     tmp["supercategory"] = sup[i]
+    #     tmp["name"] = cat[i]
+    #     tmps.append(tmp)
+    # return tmps
+    tmp = cl.OrderedDict()
+    tmp["id"] = 1
+    tmp["supercategory"] = "AR"
+    tmp["name"] = "AR"
+    return [tmp]
 
 
 def main():
@@ -97,11 +114,13 @@ def main():
     parser.add_argument("pickle_path")
     parser.add_argument("output_path")
     parser.add_argument("--mode", default="plane", help="plane or balance")
+    parser.add_argument("--data", default="plane")
     args = parser.parse_args()
     image_paths = sorted(glob.glob(args.image_path))
     output_path = args.output_path
     pickle_path = args.pickle_path
     mode = args.mode
+    data = args.data
     query_list = ["info", "images", "annotations", "categories"]
     js = cl.OrderedDict()
     coord_df = pd.read_pickle(pickle_path)
@@ -118,6 +137,7 @@ def main():
                 tmp = categories()
             js[query_list[i]] = tmp
     else:
+
         balance_df = pd.DataFrame(
             index=[], columns=["Polygon", "C_FLARE", "M_FLARE", "X_FLARE"])
         for series in coord_df.iterrows():
@@ -147,8 +167,12 @@ def main():
                 js[query_list[i]] = tmp
 
         # print("images:{}".format(js["images"][0]))
-    utils.pickle_dump(
-        js, "{}/{}.pickle".format(output_path, pickle_path[-21:-15]))
+    if(data == "merge"):
+        fw = open("{}/output.json".format(output_path), "w")
+        json.dump(js, fw)
+    else:
+        utils.pickle_dump(
+            js, "{}/{}.pickle".format(output_path, pickle_path[-21:-15]))
     # fw = open("201005datasets.json","w")
     # json.dump(js,fw,indent=2)
 
